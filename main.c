@@ -7,6 +7,10 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <time.h>
+<<<<<<< HEAD
+=======
+#include <sys/utsname.h>
+>>>>>>> refs/remotes/origin/main
 
 
 #define MAXENTRADA  2048
@@ -63,6 +67,7 @@ void Cmd_autores(char *tr) {
         printf("pablo.bea.dopazo\nszymon.zieba\n");
 }
 
+<<<<<<< HEAD
 void Cmd_date(char *tr){
     time_t now = time(NULL);
     struct tm *t  = localtime(&now);
@@ -82,6 +87,21 @@ void Cmd_date(char *tr){
         strftime(hour, sizeof(hour), "%H:%M:%S", t);
         printf("%s\n", hour);
     }    
+=======
+void Cmd_sysinfo(){
+    struct utsname info;
+
+    if (uname(&info) == -1) {
+        perror("uname");
+        return;
+    }
+
+    printf("Sistema operativo: %s\n", info.sysname);
+    printf("Nombre de la máquina: %s\n", info.nodename);
+    printf("Release/kernel: %s\n", info.release);
+    printf("Versión del kernel: %s\n", info.version);
+    printf("Arquitectura: %s\n", info.machine);
+>>>>>>> refs/remotes/origin/main
 }
 
 void Cmd_exec (char *tr[])
@@ -127,10 +147,17 @@ void DecidirComando(char *tr[])
   if (tr[0]==NULL)  /*por si cambiamos lo de TroearCadena==0*/
     return;         /*no hace falta que ya comprobamos que TrocearCadena no devielve 0*/
   if (!strcmp(tr[0],"quit") || !strcmp(tr[0],"exit")) exit(0);
+<<<<<<< HEAD
   else if (!strcmp(tr[0],"date")) Cmd_date(tr[1]);
   else if (!strcmp(tr[0],"pid")) Cmd_pid (tr[1]);
   else if (!strcmp(tr[0],"authors")) Cmd_autores(tr[1]);
   else if (!strcmp(tr[0],"sysinfo")) ;
+=======
+  else if (!strcmp(tr[0],"date")) Cmd_autores(tr[1]);
+  else if (!strcmp(tr[0],"pid")) Cmd_pid (tr[1]);
+  else if (!strcmp(tr[0],"authors")) Cmd_autores(tr[1]);
+  else if (!strcmp(tr[0],"sysinfo")) Cmd_sysinfo();
+>>>>>>> refs/remotes/origin/main
   else if (!strcmp(tr[0],"help")) ;
   else if (!strcmp(tr[0],"chdir")) ;
   else if (!strcmp(tr[0],"open")) ;
