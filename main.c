@@ -79,6 +79,39 @@ void Cmd_sysinfo(){
     printf("Arquitectura: %s\n", info.machine);
 }
 
+void Cmd_help(char *tr){
+    if(!tr){
+        printf("Cmds practica 0: prompt numserie limits systemd command historic\n" 
+                "Cmds practica 1: exit bye date pid authors sysinfo help chdir open close listopen dup lseek readstr writestr makefile makedir delete deltree listfile list\n"
+                "Cmds practica 2: allocate deallocate i-o read write memory recurse memfill memdump\n"
+                "Cmds practica 3: getuid setuid prio path showenv showvar changevar changevarWrong fork ejec ejecpri pplano pplanopri splano splanopri jobs deljobs\n");
+    }
+    else if (strcmp(tr, "exit") || strcmp(tr, "exit"))
+        printf("Termina la ejecucion del shell");
+    else if (strcmp(tr, "date"))
+        printf("date: [-d|-t]	Muestra la fecha y/o la hora actual");
+    else if (strcmp(tr, "pid"))
+        printf("pid: [-p]	Muestra el pid del shell o de su proceso padre");
+    else if (strcmp(tr, "authors"))
+        printf("authors: [-n|-l]	Muestra los nombres y/o logins de los autores");
+    else if (strcmp(tr, "sysinfo"))
+        printf("sysinfo: 	Muestra informacion de la maquina donde corre el shell");
+    else if (strcmp(tr, "help"))
+        printf("help: [cmd|-lt|-T|-all]	Muestra ayuda sobre los comandos"
+	            "cmd: info sobre el comando cmd");
+    else if (strcmp(tr, "chdir"))
+        printf("chdir: [dir]	Cambia (o muestra) el directorio actual del shell");
+    else if (strcmp(tr, "open"))
+        printf("open: fich m1 m2...	Abre el fichero fich"
+	            "y lo anade a la lista de ficheros abiertos del shell"
+	            "m1, m2..es el modo de apertura (or bit a bit de los siguientes)"
+	            "cr: O_CREAT	ap: O_APPEND"
+	            "ex: O_EXCL 	ro: O_RDONLY"
+	            "rw: O_RDWR 	wo: O_WRONLY"
+	            "tr: O_TRUNC");
+    else
+        printf("faltan comandos");
+                }
 void Cmd_exec (char *tr[])
 {
   if (execvp(tr[0],tr)==-1)
