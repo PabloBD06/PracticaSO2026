@@ -6,6 +6,7 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <time.h>
 
 
 #define MAXENTRADA  2048
@@ -63,7 +64,24 @@ void Cmd_autores(char *tr) {
 }
 
 void Cmd_date(char *tr){
+    time_t now = time(NULL);
+    struct tm *t  = localtime(&now);
 
+    if (!tr) {
+        char date[21];
+        strftime(date, sizeof(date), "%Y-%m-%d %H:%M:%S", t);
+        printf("%s\n", date);
+    }
+    else if (!strcmp(tr, "-d")) {
+        char date[11];
+        strftime(date, sizeof(date), "%Y-%m-%d", t);
+        printf("%s\n", date);
+    }
+    else if (!strcmp(tr, "-t")) {
+        char hour[9];
+        strftime(hour, sizeof(hour), "%H:%M:%S", t);
+        printf("%s\n", hour);
+    }    
 }
 
 void Cmd_exec (char *tr[])
@@ -109,9 +127,9 @@ void DecidirComando(char *tr[])
   if (tr[0]==NULL)  /*por si cambiamos lo de TroearCadena==0*/
     return;         /*no hace falta que ya comprobamos que TrocearCadena no devielve 0*/
   if (!strcmp(tr[0],"quit") || !strcmp(tr[0],"exit")) exit(0);
-  else if (!strcmp(tr[0],"date")) Cmd_autores(tr);
+  else if (!strcmp(tr[0],"date")) Cmd_date(tr[1]);
   else if (!strcmp(tr[0],"pid")) Cmd_pid (tr[1]);
-  else if (!strcmp(tr[0],"authors")) Cmd_autores(tr);
+  else if (!strcmp(tr[0],"authors")) Cmd_autores(tr[1]);
   else if (!strcmp(tr[0],"sysinfo")) ;
   else if (!strcmp(tr[0],"help")) ;
   else if (!strcmp(tr[0],"chdir")) ;
