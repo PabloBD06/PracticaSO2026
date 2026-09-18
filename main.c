@@ -108,16 +108,26 @@ void DecidirComando(char *tr[])
 {
   if (tr[0]==NULL)  /*por si cambiamos lo de TroearCadena==0*/
     return;         /*no hace falta que ya comprobamos que TrocearCadena no devielve 0*/
-  if (!strcmp(tr[0],"fin")) exit(0);
-  else if (!strcmp(tr[0],"quit")) exit(0);
-  else if (!strcmp(tr[0],"exit")) exit(0);	
-  else if (!strcmp(tr[0],"autores")) Cmd_autores(tr);
-  else if (!strcmp(tr[0],"exec")) Cmd_exec(tr+1);
-  else if (!strcmp(tr[0],"pplano")) Cmd_pplano(tr+1);
-  else if (!strcmp(tr[0],"splano")) Cmd_splano(tr+1);
-  else if (!strcmp(tr[0],"chdir")) Cmd_chdir (tr[1]);
-  else if (!strcmp(tr[0],"pwd")) Cmd_pwd ();
+  if (!strcmp(tr[0],"quit") || !strcmp(tr[0],"exit")) exit(0);
+  else if (!strcmp(tr[0],"date")) Cmd_autores(tr);
   else if (!strcmp(tr[0],"pid")) Cmd_pid (tr[1]);
+  else if (!strcmp(tr[0],"authors")) Cmd_autores(tr);
+  else if (!strcmp(tr[0],"sysinfo")) ;
+  else if (!strcmp(tr[0],"help")) ;
+  else if (!strcmp(tr[0],"chdir")) ;
+  else if (!strcmp(tr[0],"open")) ;
+  else if (!strcmp(tr[0],"close")) ;
+  else if (!strcmp(tr[0],"listopen")) ;
+  else if (!strcmp(tr[0],"dup")) ;
+  else if (!strcmp(tr[0],"lseek")) ;
+  else if (!strcmp(tr[0],"readstr")) ;
+  else if (!strcmp(tr[0],"writestr")) ;
+  else if (!strcmp(tr[0],"makefile")) ;
+  else if (!strcmp(tr[0],"makedir")) ;
+  else if (!strcmp(tr[0],"delete")) ;
+  else if (!strcmp(tr[0],"deletetree")) ;
+  else if (!strcmp(tr[0],"listfile")) ;
+  else if (!strcmp(tr[0],"list")) ;
   else Cmd_pplano(tr);
 }
 
