@@ -11,10 +11,10 @@
  * Storing a pointer (void *) allows the dynamic list to hold arbitrary data structures
  * (e.g., open file entries, command history strings, memory blocks, background jobs).
  */
-typedef struct { //Struct con la informacion relevante que tiene un archivo
-    int fd;         //file descriptor
-    char *filename; //nombre del archivo
-    int flags;      //opciones con las que se abrio el archivo
+typedef struct {    // Struct con la informacion relevante que tiene un archivo
+    int fd;         // file descriptor
+    char *filename; // nombre del archivo
+    int flags;      // opciones con las que se abrio el archivo
 } *OpenFile;
 /**
  * Position type, pointing to a node in the list.
