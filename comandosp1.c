@@ -124,9 +124,8 @@ void Cmd_chdir(char *dir){
 
 
 void Cmd_open (char * tr[]){
-    int i,df, mode=0;
-    
-    if (tr[0]==NULL) { /*no hay parametro*/
+    /*
+    if (tr[0]==NULL) { 
         ListarFicherosAbiertos();
         return;
     }
@@ -144,7 +143,8 @@ void Cmd_open (char * tr[]){
         perror ("Imposible abrir fichero");
     else{
         AnadirAFicherosAbiertos (descriptor...modo...nombre....);
-        printf ("Anadida entrada a la tabla ficheros abiertos..................",......);
+        printf ("Anadida entrada a la tabla ficheros abiertos..................",......); 
+    */
 }
 
 
