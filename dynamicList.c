@@ -1,4 +1,4 @@
-#include "dynamic_list.h"
+#include "dynamicList.h"
 
 void createEmptyList(tList *L) {
     *L = LNULL;

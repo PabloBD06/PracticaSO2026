@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "comandosp1.h"
+#include "comandosp1.c"
 
 #define MAXENTRADA  2048
 
@@ -26,7 +26,7 @@ void DecidirComando(char *tr[])
   else if (!strcmp(tr[0],"dup")) Cmd_dup();
   else if (!strcmp(tr[0],"lseek")) Cmd_lseek();
   else if (!strcmp(tr[0],"readstr")) Cmd_readstr();
-  else if (!strcmp(tr[0],"writestr")) Cmd_writestr;
+  else if (!strcmp(tr[0],"writestr")) Cmd_writestr();
   else if (!strcmp(tr[0],"makefile")) Cmd_makefile();
   else if (!strcmp(tr[0],"makedir")) Cmd_makedir();
   else if (!strcmp(tr[0],"delete")) Cmd_delete();

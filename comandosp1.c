@@ -5,9 +5,10 @@
 #include <time.h>
 #include <sys/utsname.h>
 
+#include "dynamicList.h"
 #include "comandosp1.h"
 
-#define MAXNOMBREDIR 1024 //tamaño maximo de nombre de directorio
+#define MAXNOMBREDIR 256 //tamaño maximo de nombre de directorio
 
 /**
  * Función auxiliar usada en Cmd_chdir
@@ -123,7 +124,7 @@ void Cmd_chdir(char *dir){
 }
 
 
-void Cmd_open (char * tr[]){
+void Cmd_open (){
     /*
     if (tr[0]==NULL) { 
         ListarFicherosAbiertos();
