@@ -36,7 +36,7 @@ tPosL previous(tPosL p, tList L) {
     return q;
 }
 
-bool insertItem(tItemL d, tPosL p, tList *L) {
+bool insertItem(OpenFile d, tPosL p, tList *L) {
     tPosL q = (tPosL)malloc(sizeof(struct tNode));
     if (q == NULL) return false;
 
@@ -83,20 +83,20 @@ void deleteAtPosition(tPosL p, tList *L) {
     }
 }
 
-tItemL getItem(tPosL p, tList L) {
+OpenFile getItem(tPosL p, tList L) {
     (void)L;
     if (p == LNULL) return NULL;
     return p->data;
 }
 
-void updateItem(tItemL d, tPosL p, tList *L) {
+void updateItem(OpenFile d, tPosL p, tList *L) {
     (void)L;
     if (p != LNULL) {
         p->data = d;
     }
 }
 
-tPosL findItem(tItemL d, tList L) {
+tPosL findItem(OpenFile d, tList L) {
     for (tPosL p = L; p != LNULL; p = p->next) {
         if (p->data == d) {
             return p;

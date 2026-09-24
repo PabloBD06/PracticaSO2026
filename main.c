@@ -4,9 +4,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "comandosp1.c"
+#include "comandosp1.h"
+#include "dynamicList.h"
 
 #define MAXENTRADA  2048
+#define MAXOPENFILES 128
+
+tList FicherosAbiertos;
 
 /**************************SHELL**************************/
 void DecidirComando(char *tr[])
@@ -20,7 +24,7 @@ void DecidirComando(char *tr[])
   else if (!strcmp(tr[0],"sysinfo")) Cmd_sysinfo();
   else if (!strcmp(tr[0],"help")) Cmd_help(tr[1]);
   else if (!strcmp(tr[0],"chdir")) Cmd_chdir(tr[1]);
-  else if (!strcmp(tr[0],"open")) Cmd_open();
+  else if (!strcmp(tr[0],"open")) Cmd_open(*tr[1]);
   else if (!strcmp(tr[0],"close")) Cmd_close();
   else if (!strcmp(tr[0],"listopen")) Cmd_listopen();
   else if (!strcmp(tr[0],"dup")) Cmd_dup();
@@ -56,7 +60,7 @@ void ProcesarEntrada(char * entrada)
 int main(int argc, char *argv[], char *ent[])
 {
    char entrada[MAXENTRADA];
-
+    FicherosAbiertos = createEmptyList;
    while (1){
       printf ("-> ");
       fgets(entrada,MAXENTRADA,stdin);

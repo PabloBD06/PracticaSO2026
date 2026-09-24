@@ -10,6 +10,23 @@
 
 #define MAXNOMBREDIR 256 //tamaño maximo de nombre de directorio
 
+
+ void MostrarFicherosAbiertos(tList list) {
+    if(!isEmptyList(list)) {
+        tPosL currentpos = first(list);
+    do {
+        OpenFile file = getItem(currentpos, list);
+        printf("descriptor: %d,-> %c\n", file->fd, file->filename);
+        currentpos = next(currentpos, list);
+        
+    } while(next(currentpos, list) != NULL);
+    }
+
+}
+
+
+
+
 /**
  * Función auxiliar usada en Cmd_chdir
  */
@@ -124,7 +141,7 @@ void Cmd_chdir(char *dir){
 }
 
 
-void Cmd_open (){
+void Cmd_open (char * tr[]){
     /*
     if (tr[0]==NULL) { 
         ListarFicherosAbiertos();
