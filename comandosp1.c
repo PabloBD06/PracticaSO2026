@@ -13,16 +13,25 @@
 
 #define MAXNOMBREDIR 256 // tamaño maximo de nombre de directorio
 
-void MostrarFicherosAbiertos(tList list) {
+void ListarFicherosAbiertos(tList list) {
     if (!isEmptyList(list)) {
         tPosL currentpos = first(list);
         do {
             OpenFile file = getItem(currentpos, list);
-            printf("descriptor: %d,-> %c\n", file->fd, file->filename);
+            printf("descriptor: %d,-> %s\n", file->fd, file->filename);
             currentpos = next(currentpos, list);
 
         } while (next(currentpos, list) != NULL);
     }
+}
+
+bool AñadirAFicherosAbiertos(int fd, int mode, char *name, tList *FicherosAbiertos){
+    OpenFile NewFile = (OpenFile)malloc(sizeof(OpenFile));
+        NewFile->fd = fd;
+        NewFile->filename = name;
+        NewFile->flags = mode;
+    return insertItem(NewFile, LNULL, FicherosAbiertos);
+
 }
 
 /**
@@ -127,11 +136,11 @@ void Cmd_chdir(char *dir) {
         perror("Imposible cambiar directorio");
 }
 
-void Cmd_open(char *tr[], int mode) {
+void Cmd_open(char *tr[], tList *FicherosAbiertos){
     int df;
-
+    int mode;
     if (tr[0]==NULL) {
-        ListarFicherosAbiertos();
+        ListarFicherosAbiertos(*FicherosAbiertos);
         return;
     }
     for (int i=1; tr[i]!=NULL; i++)
@@ -147,11 +156,14 @@ void Cmd_open(char *tr[], int mode) {
     if ((df=open(tr[0],mode,0777))==-1)
         perror ("Imposible abrir fichero");
     else{
-        AnadirAFicherosAbiertos (descriptor...modo...nombre....);
-        printf ("Anadida entrada a la tabla ficheros abiertos..................");
+        if(AñadirAFicherosAbiertos (df, mode, tr[0], FicherosAbiertos)){
+            printf ("Anadida entrada a la tabla ficheros abiertos: descriptor-> %d, modo-> %d, nombre-> %s", df, mode, tr[0]);
+        }
+        else printf("no se pudo añadir a la lista");
+    }
 }
 
-void Cmd_close() {
+void Cmd_close(){
     /* Código de Cmd_close */
 }
 

@@ -1,5 +1,6 @@
 #ifndef COMANDOSP1_H
 #define COMANDOSP1_H
+#include "dynamicList.h"
 
 void Cmd_date(char *tr);
 void Cmd_pid(char *arg);
@@ -7,7 +8,7 @@ void Cmd_autores(char *tr);
 void Cmd_sysinfo();
 void Cmd_help(char *tr);
 void Cmd_chdir(char *dir);
-void Cmd_open(char *tr[]);
+void Cmd_open(char *tr[], tList *FicherosAbiertos);
 void Cmd_close();
 void Cmd_listopen();
 void Cmd_dup();
