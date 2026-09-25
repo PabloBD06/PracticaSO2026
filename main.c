@@ -28,7 +28,7 @@ void DecidirComando(char *tr[]) {
     else if (!strcmp(tr[0], "listopen")) Cmd_listopen();
     else if (!strcmp(tr[0], "dup")) Cmd_dup();
     else if (!strcmp(tr[0], "lseek")) Cmd_lseek();
-    else if (!strcmp(tr[0], "readstr")) Cmd_readstr();
+    else if (!strcmp(tr[0], "readstr")) Cmd_readstr(atoi(tr[1]), atoi(tr[2]));
     else if (!strcmp(tr[0], "writestr")) Cmd_writestr();
     else if (!strcmp(tr[0], "makefile")) Cmd_makefile(tr[1]);
     else if (!strcmp(tr[0], "makedir")) Cmd_makedir(tr[1]);

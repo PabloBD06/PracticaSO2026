@@ -179,8 +179,20 @@ void Cmd_lseek() {
     /* Código de Cmd_lseek */
 }
 
-void Cmd_readstr() {
-    /* Código de Cmd_readstr */
+int Cmd_readstr(int df, int cont) {
+    char buffer[cont + 1];              
+    ssize_t status = read(df, buffer, cont);
+
+    if (status == -1) {
+        perror("read failed");
+        return 1;
+    }
+
+    buffer[status] = '\0';             
+
+    printf("%s\n", buffer);
+
+    return 0;
 }
 
 void Cmd_writestr() {

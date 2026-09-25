@@ -13,7 +13,7 @@ void Cmd_close();
 void Cmd_listopen();
 void Cmd_dup();
 void Cmd_lseek();
-void Cmd_readstr();
+int Cmd_readstr(int df, int cont);
 void Cmd_writestr();
 int Cmd_makefile(char *tr);
 int Cmd_makedir(char *tr);
