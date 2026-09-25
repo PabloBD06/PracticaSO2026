@@ -127,13 +127,14 @@ void Cmd_chdir(char *dir) {
         perror("Imposible cambiar directorio");
 }
 
-void Cmd_open(char *tr[]) {
-    /*
+void Cmd_open(char *tr[], int mode) {
+    int df;
+
     if (tr[0]==NULL) {
         ListarFicherosAbiertos();
         return;
     }
-    for (i=1; tr[i]!=NULL; i++)
+    for (int i=1; tr[i]!=NULL; i++)
       if (!strcmp(tr[i],"cr")) mode|=O_CREAT;
       else if (!strcmp(tr[i],"ex")) mode|=O_EXCL;
       else if (!strcmp(tr[i],"ro")) mode|=O_RDONLY;
@@ -147,8 +148,7 @@ void Cmd_open(char *tr[]) {
         perror ("Imposible abrir fichero");
     else{
         AnadirAFicherosAbiertos (descriptor...modo...nombre....);
-        printf ("Anadida entrada a la tabla ficheros abiertos..................",......);
-    */
+        printf ("Anadida entrada a la tabla ficheros abiertos..................");
 }
 
 void Cmd_close() {

@@ -23,7 +23,7 @@ void DecidirComando(char *tr[]) {
     else if (!strcmp(tr[0], "sysinfo")) Cmd_sysinfo();
     else if (!strcmp(tr[0], "help")) Cmd_help(tr[1]);
     else if (!strcmp(tr[0], "chdir")) Cmd_chdir(tr[1]);
-    //else if (!strcmp(tr[0], "open")) Cmd_open(&tr[1]);
+    else if (!strcmp(tr[0], "open")) Cmd_open(&tr[1]);
     else if (!strcmp(tr[0], "close")) Cmd_close();
     else if (!strcmp(tr[0], "listopen")) Cmd_listopen();
     else if (!strcmp(tr[0], "dup")) Cmd_dup();
