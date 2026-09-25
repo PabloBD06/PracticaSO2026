@@ -14,7 +14,7 @@ void Cmd_dup();
 void Cmd_lseek();
 void Cmd_readstr();
 void Cmd_writestr();
-void Cmd_makefile();
+void Cmd_makefile(char *tr);
 void Cmd_makedir();
 void Cmd_delete();
 void Cmd_deltree();

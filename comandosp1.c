@@ -1,6 +1,9 @@
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <sys/utsname.h>
 #include <time.h>
 #include <unistd.h>
@@ -172,8 +175,15 @@ void Cmd_writestr() {
     /* Código de Cmd_writestr */
 }
 
-void Cmd_makefile() {
-    /* Código de Cmd_makefile */
+void Cmd_makefile(char *tr) {
+    int status = open(tr[0], O_CREAT);
+
+    if (status == -1) {
+        perror("open failed");
+        return 1;
+    }
+
+    return 0;
 }
 
 void Cmd_makedir() {
