@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "comandosp1.h"
-#include "dynamicList.h"
+#include "comandosp1.c"
+#include "dynamicList.c"
 
 #define MAXENTRADA 2048
 #define MAXOPENFILES 128
@@ -23,7 +23,7 @@ void DecidirComando(char *tr[]) {
     else if (!strcmp(tr[0], "sysinfo")) Cmd_sysinfo();
     else if (!strcmp(tr[0], "help")) Cmd_help(tr[1]);
     else if (!strcmp(tr[0], "chdir")) Cmd_chdir(tr[1]);
-    else if (!strcmp(tr[0], "open")) Cmd_open(*tr[1]);
+    //else if (!strcmp(tr[0], "open")) Cmd_open(&tr[1]);
     else if (!strcmp(tr[0], "close")) Cmd_close();
     else if (!strcmp(tr[0], "listopen")) Cmd_listopen();
     else if (!strcmp(tr[0], "dup")) Cmd_dup();
@@ -31,7 +31,7 @@ void DecidirComando(char *tr[]) {
     else if (!strcmp(tr[0], "readstr")) Cmd_readstr();
     else if (!strcmp(tr[0], "writestr")) Cmd_writestr();
     else if (!strcmp(tr[0], "makefile")) Cmd_makefile(tr[1]);
-    else if (!strcmp(tr[0], "makedir")) Cmd_makedir();
+    else if (!strcmp(tr[0], "makedir")) Cmd_makedir(tr[1]);
     else if (!strcmp(tr[0], "delete")) Cmd_delete();
     else if (!strcmp(tr[0], "deltree")) Cmd_deltree();
     else if (!strcmp(tr[0], "listfile")) Cmd_listfile();
@@ -57,7 +57,8 @@ void ProcesarEntrada(char *entrada) {
 
 int main(int argc, char *argv[], char *ent[]) {
     char entrada[MAXENTRADA];
-    FicherosAbiertos = createEmptyList;
+    tList *FicherosAbiertos = malloc(sizeof(tList));
+    createEmptyList(FicherosAbiertos);
     while (1) {
         printf("-> ");
         fgets(entrada, MAXENTRADA, stdin);
