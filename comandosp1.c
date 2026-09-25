@@ -175,8 +175,8 @@ void Cmd_writestr() {
     /* Código de Cmd_writestr */
 }
 
-void Cmd_makefile(char *tr) {
-    int status = open(tr[0], O_CREAT);
+int Cmd_makefile(char *tr) {
+    int status = open(tr, O_CREAT);
 
     if (status == -1) {
         perror("open failed");
@@ -186,8 +186,15 @@ void Cmd_makefile(char *tr) {
     return 0;
 }
 
-void Cmd_makedir() {
-    /* Código de Cmd_makedir */
+int Cmd_makedir(char *tr) {
+    int status = mkdir(tr, O_CREAT);
+
+    if (status == -1) {
+        perror("mkdir failed");
+        return 1;
+    }
+
+    return 0;
 }
 
 void Cmd_delete() {
