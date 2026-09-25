@@ -26,7 +26,7 @@ void ListarFicherosAbiertos(tList list) {
 }
 
 bool AñadirAFicherosAbiertos(int fd, int mode, char *name, tList *FicherosAbiertos){
-    OpenFile NewFile = (OpenFile)malloc(sizeof(OpenFile));
+    OpenFile NewFile = (OpenFile)malloc(sizeof(struct OpenFile));
         NewFile->fd = fd;
         NewFile->filename = name;
         NewFile->flags = mode;
