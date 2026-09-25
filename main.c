@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include "comandosp1.h"
-#include "dynamicList.c"
+#include "dynamicList.h"
 
 #define MAXENTRADA 2048
 #define MAXOPENFILES 128
