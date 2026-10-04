@@ -15,22 +15,22 @@
 
 static int delete_one(char *name) {
     struct stat st;
-    
+
     /* lstat, not stat: a symlink must be removed itself,
     never followed (otherwise a link to a dir would be treated as a dir). */
     if (lstat(name, &st) == -1) {
         fprintf(stderr, "delete cannot access '%s'\n", name);
         return -1;
     }
-    
+
     // check if the file is a dir first to use the proper function
     int rc = S_ISDIR(st.st_mode) ? rmdir(name) : unlink(name);
-    
+
     if (rc == -1) {
         fprintf(stderr, "delete cannot delete '%s'\n", name);
         return -1;
     }
-    
+
     return 0;
 }
 
@@ -48,13 +48,12 @@ void ListarFicherosAbiertos(tList list) {
     }
 }
 
-bool AñadirAFicherosAbiertos(int fd, int mode, char *name, tList *FicherosAbiertos){
+bool AñadirAFicherosAbiertos(int fd, int mode, char *name, tList *FicherosAbiertos) {
     OpenFile NewFile = (OpenFile)malloc(sizeof(struct OpenFile));
-        NewFile->fd = fd;
-        NewFile->filename = name;
-        NewFile->flags = mode;
+    NewFile->fd = fd;
+    NewFile->filename = name;
+    NewFile->flags = mode;
     return insertItem(NewFile, LNULL, FicherosAbiertos);
-
 }
 
 /**
@@ -159,34 +158,33 @@ void Cmd_chdir(char *dir) {
         perror("Imposible cambiar directorio");
 }
 
-void Cmd_open(char *tr[], tList *FicherosAbiertos){
+void Cmd_open(char *tr[], tList *FicherosAbiertos) {
     int df;
     int mode;
-    if (tr[0]==NULL) {
+    if (tr[0] == NULL) {
         ListarFicherosAbiertos(*FicherosAbiertos);
         return;
     }
-    for (int i=1; tr[i]!=NULL; i++)
-      if (!strcmp(tr[i],"cr")) mode|=O_CREAT;
-      else if (!strcmp(tr[i],"ex")) mode|=O_EXCL;
-      else if (!strcmp(tr[i],"ro")) mode|=O_RDONLY;
-      else if (!strcmp(tr[i],"wo")) mode|=O_WRONLY;
-      else if (!strcmp(tr[i],"rw")) mode|=O_RDWR;
-      else if (!strcmp(tr[i],"ap")) mode|=O_APPEND;
-      else if (!strcmp(tr[i],"tr")) mode|=O_TRUNC;
-      else break;
+    for (int i = 1; tr[i] != NULL; i++)
+        if (!strcmp(tr[i], "cr")) mode |= O_CREAT;
+        else if (!strcmp(tr[i], "ex")) mode |= O_EXCL;
+        else if (!strcmp(tr[i], "ro")) mode |= O_RDONLY;
+        else if (!strcmp(tr[i], "wo")) mode |= O_WRONLY;
+        else if (!strcmp(tr[i], "rw")) mode |= O_RDWR;
+        else if (!strcmp(tr[i], "ap")) mode |= O_APPEND;
+        else if (!strcmp(tr[i], "tr")) mode |= O_TRUNC;
+        else break;
 
-    if ((df=open(tr[0],mode,0777))==-1)
-        perror ("Imposible abrir fichero");
-    else{
-        if(AñadirAFicherosAbiertos (df, mode, tr[0], FicherosAbiertos)){
-            printf ("Anadida entrada a la tabla ficheros abiertos: descriptor-> %d, modo-> %d, nombre-> %s", df, mode, tr[0]);
-        }
-        else printf("no se pudo añadir a la lista");
+    if ((df = open(tr[0], mode, 0777)) == -1)
+        perror("Imposible abrir fichero");
+    else {
+        if (AñadirAFicherosAbiertos(df, mode, tr[0], FicherosAbiertos)) {
+            printf("Anadida entrada a la tabla ficheros abiertos: descriptor-> %d, modo-> %d, nombre-> %s", df, mode, tr[0]);
+        } else printf("no se pudo añadir a la lista");
     }
 }
 
-void Cmd_close(){
+void Cmd_close() {
     /* Código de Cmd_close */
 }
 
@@ -203,7 +201,7 @@ void Cmd_lseek() {
 }
 
 int Cmd_readstr(int df, int cont) {
-    char buffer[cont + 1];              
+    char buffer[cont + 1];
     ssize_t status = read(df, buffer, cont);
 
     if (status == -1) {
@@ -211,7 +209,7 @@ int Cmd_readstr(int df, int cont) {
         return 1;
     }
 
-    buffer[status] = '\0';             
+    buffer[status] = '\0';
 
     printf("%s\n", buffer);
 
