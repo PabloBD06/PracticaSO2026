@@ -1,4 +1,7 @@
+#include <dirent.h>
+#include <errno.h>
 #include <fcntl.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,7 +16,7 @@
 
 #define MAXNOMBREDIR 256 // tamaño maximo de nombre de directorio
 
-static int delete_one(char *name) {
+static int deleteSingle(char *name) {
     struct stat st;
 
     /* lstat, not stat: a symlink must be removed itself,
@@ -32,6 +35,59 @@ static int delete_one(char *name) {
     }
 
     return 0;
+}
+
+static int deleteTree(const char *name) {
+    struct stat st;
+
+    if (lstat(name, &st) == -1) {
+        fprintf(stderr, "deltree: cannot access '%s': %s\n", name, strerror(errno));
+        return -1;
+    }
+
+    if (!S_ISDIR(st.st_mode)) {
+        if (unlink(name) == -1) {
+            fprintf(stderr, "deltree: cannot delete '%s': %s\n", name, strerror(errno));
+            return -1;
+        }
+        return 0;
+    }
+
+    /* Directory: delete its contents first */
+    DIR *d = opendir(name);
+
+    if (d == NULL) {
+        fprintf(stderr, "deltree: cannot open '%s': %s\n", name, strerror(errno));
+        return -1;
+    }
+
+    int status = 0;
+    struct dirent *e;
+    char path[PATH_MAX];
+
+    while ((e = readdir(d)) != NULL) {
+        if (strcmp(e->d_name, ".") == 0 || strcmp(e->d_name, "..") == 0)
+            continue;
+
+        //TODO: revisar si dejar este if para la entrega
+        if (snprintf(path, sizeof path, "%s/%s", name, e->d_name) >= (int)sizeof path) {
+            fprintf(stderr, "deltree: path too long: '%s/%s'\n", name, e->d_name);
+            status = -1;
+            continue;
+        }
+
+        if (deleteTree(path) == -1)
+            status = -1;
+    }
+
+    closedir(d);
+
+    if (rmdir(name) == -1) {
+        fprintf(stderr, "deltree: cannot delete '%s': %s\n", name, strerror(errno));
+        status = -1;
+    }
+
+    return status;
 }
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------
@@ -244,12 +300,14 @@ int Cmd_makedir(char *tr) {
 
 void Cmd_delete(char *tr[]) {
     for (int i = 0; tr[i] != NULL; i++) {
-        delete_one(tr[i]);
+        deleteSingle(tr[i]);
     }
 }
 
-void Cmd_deltree() {
-    /* Código de Cmd_deltree */
+void Cmd_deltree(char *tr[]) {
+    for (int i = 0; tr[i] != NULL; i++) {
+        deleteTree(tr[i]);
+    }
 }
 
 void Cmd_listfile() {

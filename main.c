@@ -33,7 +33,7 @@ void DecidirComando(char *tr[]) {
     else if (!strcmp(tr[0], "makefile")) Cmd_makefile(tr[1]);
     else if (!strcmp(tr[0], "makedir")) Cmd_makedir(tr[1]);
     else if (!strcmp(tr[0], "delete")) Cmd_delete(&tr[1]);
-    else if (!strcmp(tr[0], "deltree")) Cmd_deltree();
+    else if (!strcmp(tr[0], "deltree")) Cmd_deltree(&tr[1]);
     else if (!strcmp(tr[0], "listfile")) Cmd_listfile();
     else if (!strcmp(tr[0], "list")) Cmd_list();
     else
