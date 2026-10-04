@@ -17,7 +17,7 @@ int Cmd_readstr(int df, int cont);
 void Cmd_writestr();
 int Cmd_makefile(char *tr);
 int Cmd_makedir(char *tr);
-void Cmd_delete();
+void Cmd_delete(char *tr[]);
 void Cmd_deltree();
 void Cmd_listfile();
 void Cmd_list();

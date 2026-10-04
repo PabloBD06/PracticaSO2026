@@ -13,6 +13,29 @@
 
 #define MAXNOMBREDIR 256 // tamaño maximo de nombre de directorio
 
+static int delete_one(char *name) {
+    struct stat st;
+    
+    /* lstat, not stat: a symlink must be removed itself,
+    never followed (otherwise a link to a dir would be treated as a dir). */
+    if (lstat(name, &st) == -1) {
+        fprintf(stderr, "delete cannot access '%s'\n", name);
+        return -1;
+    }
+    
+    // check if the file is a dir first to use the proper function
+    int rc = S_ISDIR(st.st_mode) ? rmdir(name) : unlink(name);
+    
+    if (rc == -1) {
+        fprintf(stderr, "delete cannot delete '%s'\n", name);
+        return -1;
+    }
+    
+    return 0;
+}
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------
+
 void ListarFicherosAbiertos(tList list) {
     if (!isEmptyList(list)) {
         tPosL currentpos = first(list);
@@ -221,8 +244,10 @@ int Cmd_makedir(char *tr) {
     return 0;
 }
 
-void Cmd_delete() {
-    /* Código de Cmd_delete */
+void Cmd_delete(char *tr[]) {
+    for (int i = 0; tr[i] != NULL; i++) {
+        delete_one(tr[i]);
+    }
 }
 
 void Cmd_deltree() {
