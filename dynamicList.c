@@ -105,6 +105,15 @@ tPosL findItem(OpenFile d, tList L) {
     return LNULL;
 }
 
+tPosL findItemByFileDescriptor(int fd, tList L) {
+    for (tPosL p = L; p != LNULL; p = p->next) {
+        if (p->data->fd == fd) {
+            return p;
+        }
+    }
+    return LNULL;
+}
+
 void deleteList(tList *L) {
     deleteListWithData(L, NULL);
 }

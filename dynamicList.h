@@ -120,6 +120,8 @@ void updateItem(OpenFile d, tPosL p, tList *L);
  */
 tPosL findItem(OpenFile d, tList L);
 
+tPosL findItemByFileDescriptor(int fd, tList L);
+
 /**
  * Deletes all nodes in the list and resets it to an empty list.
  * Does not free the item payloads.
