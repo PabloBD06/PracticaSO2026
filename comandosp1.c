@@ -69,7 +69,7 @@ static int deleteTree(const char *name) {
         if (strcmp(e->d_name, ".") == 0 || strcmp(e->d_name, "..") == 0)
             continue;
 
-        //TODO: revisar si dejar este if para la entrega
+        // TODO: revisar si dejar este if para la entrega
         if (snprintf(path, sizeof path, "%s/%s", name, e->d_name) >= (int)sizeof path) {
             fprintf(stderr, "deltree: path too long: '%s/%s'\n", name, e->d_name);
             status = -1;
@@ -90,7 +90,17 @@ static int deleteTree(const char *name) {
     return status;
 }
 
-//-------------------------------------------------------------------------------------------------------------------------------------------------
+/**
+ * Función auxiliar usada en Cmd_chdir
+ */
+static void MostrarDirActual() {
+    char dir[MAXNOMBREDIR];
+
+    if (getcwd(dir, MAXNOMBREDIR) == NULL)
+        perror("Imposible obtener directorio");
+    else
+        printf("%s\n", dir);
+}
 
 void ListarFicherosAbiertos(tList list) {
     if (!isEmptyList(list)) {
@@ -112,17 +122,7 @@ bool AñadirAFicherosAbiertos(int fd, int mode, char *name, tList *FicherosAbier
     return insertItem(NewFile, LNULL, FicherosAbiertos);
 }
 
-/**
- * Función auxiliar usada en Cmd_chdir
- */
-void MostrarDirActual() {
-    char dir[MAXNOMBREDIR];
-
-    if (getcwd(dir, MAXNOMBREDIR) == NULL)
-        perror("Imposible obtener directorio");
-    else
-        printf("%s\n", dir);
-}
+//-------------------------------------------------------------------------------------------------------------------------------------------------
 
 void Cmd_date(char *tr) {
     time_t now = time(NULL);
@@ -277,9 +277,7 @@ void Cmd_writestr() {
 }
 
 int Cmd_makefile(char *tr) {
-    int status = open(tr, O_CREAT);
-
-    if (status == -1) {
+    if (open(tr, O_CREAT) == -1) {
         perror("open failed");
         return 1;
     }
@@ -288,9 +286,7 @@ int Cmd_makefile(char *tr) {
 }
 
 int Cmd_makedir(char *tr) {
-    int status = mkdir(tr, O_CREAT);
-
-    if (status == -1) {
+    if (mkdir(tr, O_CREAT) == -1) {
         perror("mkdir failed");
         return 1;
     }
