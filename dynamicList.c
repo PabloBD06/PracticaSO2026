@@ -107,7 +107,7 @@ tPosL findItem(OpenFile d, tList L) {
 
 tPosL findItemByFileDescriptor(int fd, tList L) {
     for (tPosL p = L; p != LNULL; p = p->next) {
-        if (p->data->fd == fd) {
+        if (p->data != NULL && p->data->fd == fd) {
             return p;
         }
     }
