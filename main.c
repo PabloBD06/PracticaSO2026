@@ -8,7 +8,6 @@
 #include "dynamicList.h"
 
 #define MAXENTRADA 2048
-#define MAXOPENFILES 128
 
 tList FicherosAbiertos;
 
@@ -37,7 +36,7 @@ void DecidirComando(char *tr[]) {
     else if (!strcmp(tr[0], "listfile")) Cmd_listfile();
     else if (!strcmp(tr[0], "list")) Cmd_list();
     else
-        ;
+        printf("Comando no reconocido: %s (usa 'help' para ver la lista de comandos)\n", tr[0]);
 }
 
 int TrocearCadena(char *cadena, char *trozos[]) {
@@ -48,6 +47,7 @@ int TrocearCadena(char *cadena, char *trozos[]) {
         i++;
     return i;
 }
+
 void ProcesarEntrada(char *entrada) {
     char *tr[MAXENTRADA / 2];
     if (TrocearCadena(entrada, tr) == 0) /*no hay nada*/
@@ -56,6 +56,9 @@ void ProcesarEntrada(char *entrada) {
 }
 
 int main(int argc, char *argv[], char *ent[]) {
+    (void)argc;
+    (void)argv;
+    (void)ent;
     char entrada[MAXENTRADA];
     tList *FicherosAbiertos = malloc(sizeof(tList));
     createEmptyList(FicherosAbiertos);

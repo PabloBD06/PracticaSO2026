@@ -1,3 +1,6 @@
+// Autor1: Pablo Bea Dopazo login: pablo.bea.dopazo
+// Autor2: Szymon Arthur Zieba Glaz login: szymon.zieba
+
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -129,17 +132,27 @@ void Cmd_date(char *tr) {
     struct tm *t = localtime(&now);
 
     if (!tr) {
-        char date[21];
-        strftime(date, sizeof(date), "%Y-%m-%d %H:%M:%S", t);
-        printf("%s\n", date);
+        char date[11];
+        char hour[9];
+
+        strftime(date, sizeof(date), "%d/%m/%Y", t);
+        strftime(hour, sizeof(hour), "%H:%M:%S", t);
+
+        printf("%s %s\n", date, hour);
     } else if (!strcmp(tr, "-d")) {
         char date[11];
-        strftime(date, sizeof(date), "%Y-%m-%d", t);
+
+        strftime(date, sizeof(date), "%d/%m/%Y", t);
+        
         printf("%s\n", date);
     } else if (!strcmp(tr, "-t")) {
         char hour[9];
+
         strftime(hour, sizeof(hour), "%H:%M:%S", t);
+
         printf("%s\n", hour);
+    } else {
+        printf("Uso: date [-d|-t]\n");
     }
 }
 
@@ -148,15 +161,19 @@ void Cmd_pid(char *arg) {
         printf("El pid del proceso es %d\n", (int)getpid());
     else if (!strcmp(arg, "-p"))
         printf("El pid del proceso padre es %d\n", (int)getppid());
+    else
+        printf("Uso: pid [-p]\n");
 }
 
 void Cmd_autores(char *tr) {
     if (!tr)
-        printf("Pablo Bea Dopazo(pablo.bea.dopazo)\nSzymon Artur Zieba Glaz(szymon.zieba)\n");
-    else if (strcmp(tr, "-n"))
-        printf("Pablo Bea Dopazo\nSzymon Artur Zieba Glaz\n");
-    else if (strcmp(tr, "-l"))
+        printf("Pablo Bea Dopazo: pablo.bea.dopazo\nSzymon Arthur Zieba Glaz: szymon.zieba\n");
+    else if (!strcmp(tr, "-n"))
+        printf("Pablo Bea Dopazo\nSzymon Arthur Zieba Glaz\n");
+    else if (!strcmp(tr, "-l"))
         printf("pablo.bea.dopazo\nszymon.zieba\n");
+    else
+        printf("Uso: authors [-n|-l]\n");
 }
 
 void Cmd_sysinfo() {
@@ -277,8 +294,13 @@ void Cmd_writestr() {
 }
 
 int Cmd_makefile(char *tr) {
-    if (open(tr, O_CREAT) == -1) {
-        perror("open failed");
+    if (tr == NULL) {
+        printf("Uso: makefile name\n");
+        return 1;
+    }
+
+    if (open(tr, O_CREAT | O_TRUNC); == -1) {
+        perror("Imposible crear fichero");
         return 1;
     }
 
@@ -286,8 +308,13 @@ int Cmd_makefile(char *tr) {
 }
 
 int Cmd_makedir(char *tr) {
+    if (tr == NULL) {
+        printf("Uso: makedir nam\n");
+        return 1;
+    }
+
     if (mkdir(tr, O_CREAT) == -1) {
-        perror("mkdir failed");
+        perror("Imposible crear directorio");
         return 1;
     }
 
@@ -295,12 +322,22 @@ int Cmd_makedir(char *tr) {
 }
 
 void Cmd_delete(char *tr[]) {
+    if (tr[0] == NULL) {
+        printf("Uso: delete name1 name2 ...\n");
+        return;
+    }
+
     for (int i = 0; tr[i] != NULL; i++) {
         deleteSingle(tr[i]);
     }
 }
 
 void Cmd_deltree(char *tr[]) {
+    if (tr[0] == NULL) {
+        printf("Uso: deltree name1 name2 ...\n");
+        return;
+    }
+
     for (int i = 0; tr[i] != NULL; i++) {
         deleteTree(tr[i]);
     }
