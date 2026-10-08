@@ -299,7 +299,7 @@ int Cmd_makefile(char *tr) {
         return 1;
     }
 
-    if (open(tr, O_CREAT | O_TRUNC); == -1) {
+    if (open(tr, O_CREAT | O_TRUNC) == -1) {
         perror("Imposible crear fichero");
         return 1;
     }
