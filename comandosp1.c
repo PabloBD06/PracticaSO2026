@@ -745,11 +745,14 @@ int Cmd_makefile(char *tr) {
         return 1;
     }
 
-    if (open(tr, O_CREAT | O_TRUNC) == -1) {
+    int fd = open(tr, O_CREAT | O_TRUNC, 0666);
+
+    if (fd == -1) {
         perror("Imposible crear fichero");
         return 1;
     }
 
+    close(fd);
     return 0;
 }
 
@@ -759,7 +762,7 @@ int Cmd_makedir(char *tr) {
         return 1;
     }
 
-    if (mkdir(tr, O_CREAT) == -1) {
+    if (mkdir(tr, 0777) == -1) {
         perror("Imposible crear directorio");
         return 1;
     }
