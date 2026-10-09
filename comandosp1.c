@@ -48,7 +48,13 @@ static bool AñadirAFicherosAbiertos(int fd, int mode, const char *name, tList *
 
     NewFile->flags = mode;
 
-    return insertItem(NewFile, LNULL, FicherosAbiertos);
+    if (!insertItem(NewFile, LNULL, FicherosAbiertos)) {
+        free(NewFile->filename);
+        free(NewFile);
+        return false;
+    }
+
+    return true;
 }
 
 static void FormatoModo(int flags, char *buf, size_t size) {
@@ -518,6 +524,7 @@ void Cmd_open(char *tr[], tList *FicherosAbiertos) {
 
     int mode = 0;
     bool acc_set = false;
+
     for (int i = 1; tr[i] != NULL; i++) {
         if (!strcmp(tr[i], "cr")) mode |= O_CREAT;
         else if (!strcmp(tr[i], "ap")) mode |= O_APPEND;
@@ -542,6 +549,7 @@ void Cmd_open(char *tr[], tList *FicherosAbiertos) {
     }
 
     int df = open(tr[0], mode, 0777);
+
     if (df == -1) {
         perror("Imposible abrir fichero");
     } else {
@@ -551,6 +559,7 @@ void Cmd_open(char *tr[], tList *FicherosAbiertos) {
             printf("Anadida entrada a la tabla ficheros abiertos: descriptor-> %d, modo-> %s, nombre-> %s\n", df, modostr, tr[0]);
         } else {
             printf("No se pudo añadir a la lista\n");
+            close(df);
         }
     }
 }
@@ -617,6 +626,7 @@ void Cmd_dup(char *tr[], tList *FicherosAbiertos) {
 
     int oldfd = atoi(tr[0]);
     int newfd = dup(oldfd);
+
     if (newfd == -1) {
         perror("Imposible duplicar descriptor");
         return;
@@ -624,6 +634,7 @@ void Cmd_dup(char *tr[], tList *FicherosAbiertos) {
 
     char dup_name[512];
     int mode = fcntl(newfd, F_GETFL);
+
     if (mode == -1) mode = 0;
 
     tPosL pos = findItemByFileDescriptor(oldfd, *FicherosAbiertos);
@@ -720,7 +731,7 @@ void Cmd_writestr(char *tr[]) {
         perror("malloc");
         return;
     }
-    
+
     buffer[0] = '\0';
 
     for (int i = 1; tr[i] != NULL; i++) {
@@ -745,7 +756,7 @@ int Cmd_makefile(char *tr) {
         return 1;
     }
 
-    int fd = open(tr, O_CREAT | O_TRUNC, 0666);
+    int fd = open(tr, O_CREAT | O_WRONLY | O_TRUNC, 0666);
 
     if (fd == -1) {
         perror("Imposible crear fichero");

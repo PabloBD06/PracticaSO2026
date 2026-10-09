@@ -63,7 +63,6 @@ int main(int argc, char *argv[], char *ent[]) {
     (void)argv;
     (void)ent;
     char entrada[MAXENTRADA];
-    
 
     InicializarFicherosAbiertos(&FicherosAbiertos);
 
