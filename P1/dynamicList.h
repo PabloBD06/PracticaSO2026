@@ -1,3 +1,6 @@
+// Autor1: Pablo Bea Dopazo login: pablo.bea.dopazo
+// Autor2: Szymon Arthur Zieba Glaz login: szymon.zieba
+
 #ifndef DYNAMIC_LIST_H
 #define DYNAMIC_LIST_H
 

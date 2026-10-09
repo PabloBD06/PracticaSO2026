@@ -1,3 +1,6 @@
+// Autor1: Pablo Bea Dopazo login: pablo.bea.dopazo
+// Autor2: Szymon Arthur Zieba Glaz login: szymon.zieba
+
 #include "dynamicList.h"
 
 void createEmptyList(tList *L) {
