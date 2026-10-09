@@ -592,9 +592,7 @@ void Cmd_close(char *tr[], tList *FicherosAbiertos) {
         }
     }
 
-    (void)force; /* En P1 no hay mapeos activos de memoria (mmap se introduce en P2);
-                    el flag -f se procesa para cumplir la sintaxis del PDF y permitir
-                    cerrar aun cuando se añada soporte de mapeos en P2 */
+    (void)force; // El force es para la practica 2
 
     if (close(df) == -1) {
         perror("Imposible cerrar descriptor");
