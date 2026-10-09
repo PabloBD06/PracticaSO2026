@@ -1,13 +1,8 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -g
 
-all: shell p1
-
-shell: main.o comandosp1.o dynamicList.o
+p1: main.o comandosp1.o dynamicList.o
 	$(CC) $(CFLAGS) main.o comandosp1.o dynamicList.o -o shell
-
-p1: shell
-	cp shell p1
 
 main.o: main.c comandosp1.h
 	$(CC) $(CFLAGS) -c main.c
