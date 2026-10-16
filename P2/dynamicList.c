@@ -39,7 +39,7 @@ tPosL previous(tPosL p, tList L) {
     return q;
 }
 
-bool insertItem(OpenFile d, tPosL p, tList *L) {
+bool insertItem(tItemL d, tPosL p, tList *L) {
     tPosL q = (tPosL)malloc(sizeof(struct tNode));
     if (q == NULL) return false;
 
@@ -86,20 +86,20 @@ void deleteAtPosition(tPosL p, tList *L) {
     }
 }
 
-OpenFile getItem(tPosL p, tList L) {
+tItemL getItem(tPosL p, tList L) {
     (void)L;
     if (p == LNULL) return NULL;
     return p->data;
 }
 
-void updateItem(OpenFile d, tPosL p, tList *L) {
+void updateItem(tItemL d, tPosL p, tList *L) {
     (void)L;
     if (p != LNULL) {
         p->data = d;
     }
 }
 
-tPosL findItem(OpenFile d, tList L) {
+tPosL findItem(tItemL d, tList L) {
     for (tPosL p = L; p != LNULL; p = p->next) {
         if (p->data == d) {
             return p;
@@ -108,9 +108,9 @@ tPosL findItem(OpenFile d, tList L) {
     return LNULL;
 }
 
-tPosL findItemByFileDescriptor(int fd, tList L) {
+tPosL findItemFunc(const void *key, tList L, tMatchFn match) {
     for (tPosL p = L; p != LNULL; p = p->next) {
-        if (p->data != NULL && p->data->fd == fd) {
+        if (p->data != NULL && match(p->data, key)) {
             return p;
         }
     }

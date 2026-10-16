@@ -11,21 +11,19 @@
 
 /**
  * Generic item type for list elements.
- * Storing a pointer (void *) allows the dynamic list to hold arbitrary data structures
- * (e.g., open file entries, command history strings, memory blocks, background jobs).
+ * A void * lets the list hold arbitrary data (open files, command history
+ * strings, memory blocks, background jobs...). The caller casts it back
+ * to the real type when reading.
  */
-typedef struct OpenFile { // Struct con la informacion relevante que tiene un archivo
-    int fd;               // file descriptor
-    char *filename;       // nombre del archivo
-    int flags;            // opciones con las que se abrio el archivo
-} *OpenFile;
+typedef void *tItemL;
+
 /**
  * Position type, pointing to a node in the list.
  */
 typedef struct tNode *tPosL;
 
 struct tNode {
-    OpenFile data;
+    tItemL data;
     tPosL next;
 };
 
@@ -33,6 +31,7 @@ struct tNode {
  * List type, represented by a pointer to the first node.
  */
 typedef tPosL tList;
+typedef int (*tMatchFn)(const void *item, const void *key);
 
 /* ─── Standard TAD List Operations ─── */
 
@@ -88,7 +87,7 @@ tPosL previous(tPosL p, tList L);
  * @param L Pointer to the list.
  * @return true if the item was successfully inserted, false if memory allocation failed.
  */
-bool insertItem(OpenFile d, tPosL p, tList *L);
+bool insertItem(tItemL d, tPosL p, tList *L);
 
 /**
  * Deletes the element at position p from the list.
@@ -105,7 +104,7 @@ void deleteAtPosition(tPosL p, tList *L);
  * @param L The list.
  * @return The item stored at position p.
  */
-OpenFile getItem(tPosL p, tList L);
+tItemL getItem(tPosL p, tList L);
 
 /**
  * Updates the item stored at position p with a new value.
@@ -113,7 +112,7 @@ OpenFile getItem(tPosL p, tList L);
  * @param p A valid position in the list.
  * @param L Pointer to the list.
  */
-void updateItem(OpenFile d, tPosL p, tList *L);
+void updateItem(tItemL d, tPosL p, tList *L);
 
 /**
  * Finds the first occurrence of an item in the list comparing pointer values.
@@ -121,9 +120,9 @@ void updateItem(OpenFile d, tPosL p, tList *L);
  * @param L The list.
  * @return Position of the element if found, or LNULL otherwise.
  */
-tPosL findItem(OpenFile d, tList L);
+tPosL findItem(tItemL d, tList L);
 
-tPosL findItemByFileDescriptor(int fd, tList L);
+tPosL findItemFunc(const void *key, tList L, tMatchFn match);
 
 /**
  * Deletes all nodes in the list and resets it to an empty list.

@@ -20,6 +20,19 @@
 #include "comandos.h"
 #include "dynamicList.h"
 
+
+/* The specific payload is now defined separately, no longer tied to the list */
+typedef struct OpenFile {
+    int fd;          // file descriptor
+    char *filename;  // file name
+    int flags;       // flags the file was opened with
+} *OpenFile;          // note: now a struct type, not a pointer typedef
+
+static int matchByFd(const void *item, const void *key) {
+    const struct OpenFile *f = item;
+    return f->fd == *(const int *)key;
+}
+
 /* ───────────────────── GESTIÓN DE FICHEROS ABIERTOS ───────────────────── */
 
 static void LiberaOpenFile(void *ptr) {
@@ -599,7 +612,7 @@ void Cmd_close(char *tr[], tList *FicherosAbiertos) {
         return;
     }
 
-    tPosL pos = findItemByFileDescriptor(df, *FicherosAbiertos);
+    tPosL pos = findItemFunc(&df, *FicherosAbiertos, matchByFd);
 
     if (pos != LNULL) {
         OpenFile of = getItem(pos, *FicherosAbiertos);
@@ -635,7 +648,7 @@ void Cmd_dup(char *tr[], tList *FicherosAbiertos) {
 
     if (mode == -1) mode = 0;
 
-    tPosL pos = findItemByFileDescriptor(oldfd, *FicherosAbiertos);
+    tPosL pos = findItemFunc(&oldfd, *FicherosAbiertos, matchByFd);
     if (pos != LNULL) {
         OpenFile oldFile = getItem(pos, *FicherosAbiertos);
         snprintf(dup_name, sizeof(dup_name), "dup %d (%s)", oldfd, oldFile->filename);
