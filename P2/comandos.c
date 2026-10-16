@@ -17,7 +17,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "comandosp1.h"
+#include "comandos.h"
 #include "dynamicList.h"
 
 /* ───────────────────── GESTIÓN DE FICHEROS ABIERTOS ───────────────────── */

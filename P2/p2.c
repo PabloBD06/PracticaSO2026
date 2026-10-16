@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "comandosp1.h"
+#include "comandos.h"
 #include "dynamicList.h"
 
 #define MAXENTRADA 2048

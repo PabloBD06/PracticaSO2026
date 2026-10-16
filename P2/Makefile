@@ -4,17 +4,17 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -g
 
-p1: p1.o comandosp1.o dynamicList.o
-	$(CC) $(CFLAGS) p1.o comandosp1.o dynamicList.o -o p1
+p2: p2.o comandos.o dynamicList.o
+	$(CC) $(CFLAGS) p2.o comandos.o dynamicList.o -o p2
 
-p1.o: p1.c comandosp1.h
-	$(CC) $(CFLAGS) -c p1.c
+p2.o: p2.c comandos.h
+	$(CC) $(CFLAGS) -c p2.c
 
-comandosp1.o: comandosp1.c comandosp1.h dynamicList.h
-	$(CC) $(CFLAGS) -c comandosp1.c
+comandos.o: comandos.c comandos.h dynamicList.h
+	$(CC) $(CFLAGS) -c comandos.c
 
 dynamicList.o: dynamicList.c dynamicList.h
 	$(CC) $(CFLAGS) -c dynamicList.c
 
 clean:
-	rm -f *.o p1
+	rm -f *.o p2

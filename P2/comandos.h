@@ -1,8 +1,8 @@
 // Autor1: Pablo Bea Dopazo login: pablo.bea.dopazo
 // Autor2: Szymon Arthur Zieba Glaz login: szymon.zieba
 
-#ifndef COMANDOSP1_H
-#define COMANDOSP1_H
+#ifndef COMANDOS_H
+#define COMANDOS_H
 
 #include "dynamicList.h"
 
