@@ -5,7 +5,7 @@
             "name": "Debug with make",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/shell",
+            "program": "${workspaceFolder}/P2/p2",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
