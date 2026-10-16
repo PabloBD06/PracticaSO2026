@@ -122,6 +122,13 @@ void updateItem(tItemL d, tPosL p, tList *L);
  */
 tPosL findItem(tItemL d, tList L);
 
+/**
+ * Finds the first occurrence of an item in the list comparing pointer values.
+ * @param key The pointer of the item your searching for
+ * @param L The list.
+ * @param match The function with the item and the key is going to be compared.
+ * @return Position of the element if found, or LNULL otherwise.
+ */
 tPosL findItemFunc(const void *key, tList L, tMatchFn match);
 
 /**
