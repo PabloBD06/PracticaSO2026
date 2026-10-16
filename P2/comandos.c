@@ -885,3 +885,22 @@ void Cmd_list(char *tr[]) {
         }
     }
 }
+
+void Cmd_allocate() {
+}
+void Cmd_deallocate() {
+}
+void Cmd_io() {
+}
+void Cmd_memory() {
+}
+void Cmd_read() {
+}
+void Cmd_write() {
+}
+void Cmd_recurse() {
+}
+void Cmd_memfill() {
+}
+void Cmd_memdump() {
+}

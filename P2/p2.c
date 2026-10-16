@@ -39,6 +39,15 @@ void DecidirComando(char *tr[]) {
     else if (!strcmp(tr[0], "deltree")) Cmd_deltree(&tr[1]);
     else if (!strcmp(tr[0], "listfile")) Cmd_listfile(&tr[1]);
     else if (!strcmp(tr[0], "list")) Cmd_list(&tr[1]);
+    else if (!strcmp(tr[0], "allocate")) Cmd_allocate();
+    else if (!strcmp(tr[0], "deallocate")) Cmd_deallocate();
+    else if (!strcmp(tr[0], "i-o")) Cmd_io();
+    else if (!strcmp(tr[0], "memory")) Cmd_memory();
+    else if (!strcmp(tr[0], "read")) Cmd_write();
+    else if (!strcmp(tr[0], "write")) Cmd_read();
+    else if (!strcmp(tr[0], "recurse")) Cmd_recurse();
+    else if (!strcmp(tr[0], "memfill")) Cmd_memfill();
+    else if (!strcmp(tr[0], "memdump")) Cmd_memdump();
     else
         printf("Comando no reconocido: %s (usa 'help' para ver la lista de comandos)\n", tr[0]);
 }
