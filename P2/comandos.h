@@ -8,6 +8,7 @@
 
 void InicializarFicherosAbiertos(tList *FicherosAbiertos);
 void VaciarFicherosAbiertos(tList *FicherosAbiertos);
+void VaciarMemoria(tList *MemoriaAlocada);
 
 void Cmd_date(char *tr);
 void Cmd_pid(char *arg);

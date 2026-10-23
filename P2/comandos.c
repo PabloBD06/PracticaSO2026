@@ -40,7 +40,7 @@ typedef struct memory {
 
         struct {
             int fd;
-            char fileName[PATH_MAX];
+            char* fileName;
         } mapped;
     } u;
 } memory;
@@ -50,7 +50,7 @@ typedef struct OpenFile {
     int fd;          // file descriptor
     char *filename;  // file name
     int flags;       // flags the file was opened with
-} *OpenFile;          // note: now a struct type, not a pointer typedef
+} *OpenFile;         // note: now a struct type, not a pointer typedef
 
 static int matchByFd(const void *item, const void *key) {
     const struct OpenFile *f = item;
@@ -65,6 +65,17 @@ static void LiberaOpenFile(void *ptr) {
     if (of != NULL) {
         if (of->filename != NULL) {
             free(of->filename);
+        }
+        free(of);
+    }
+}
+
+static void LiberaMemoria(void *ptr) {
+    memory* of = (memory*)ptr;
+
+    if (of != NULL) {
+        if (of->type == MAPPED && of->u.mapped.fileName != NULL) {
+            free(of->u.mapped.fileName);
         }
         free(of);
     }
@@ -141,6 +152,10 @@ void InicializarFicherosAbiertos(tList *FicherosAbiertos) {
 
 void VaciarFicherosAbiertos(tList *FicherosAbiertos) {
     deleteListWithData(FicherosAbiertos, LiberaOpenFile);
+}
+
+void VaciarMemoria(tList *MemoriaAlocada) {
+    deleteListWithData(MemoriaAlocada, LiberaMemoria);
 }
 
 /* ───────────────────── FUNCIONES AUXILIARES DE FICHEROS ───────────────────── */

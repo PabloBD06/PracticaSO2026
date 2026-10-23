@@ -11,6 +11,7 @@
 #define MAXENTRADA 2048
 
 tList FicherosAbiertos;
+tList MemoriaAlocada;
 
 /**************************SHELL**************************/
 void DecidirComando(char *tr[]) {
@@ -18,6 +19,7 @@ void DecidirComando(char *tr[]) {
         return;
     if (!strcmp(tr[0], "quit") || !strcmp(tr[0], "exit") || !strcmp(tr[0], "bye")) {
         VaciarFicherosAbiertos(&FicherosAbiertos);
+        VaciarMemoria(&MemoriaAlocada);
         exit(0);
     } else if (!strcmp(tr[0], "date")) Cmd_date(tr[1]);
     else if (!strcmp(tr[0], "pid")) Cmd_pid(tr[1]);
@@ -75,6 +77,7 @@ int main(int argc, char *argv[], char *ent[]) {
     char entrada[MAXENTRADA];
 
     InicializarFicherosAbiertos(&FicherosAbiertos);
+    createEmptyList(&MemoriaAlocada);
 
     while (1) {
         printf("-> ");
@@ -83,5 +86,7 @@ int main(int argc, char *argv[], char *ent[]) {
     }
 
     VaciarFicherosAbiertos(&FicherosAbiertos);
+    VaciarMemoria(&MemoriaAlocada);
+
     return 0;
 }
