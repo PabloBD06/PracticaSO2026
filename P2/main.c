@@ -5,7 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "comandos.h"
+#include "shellCommands.h"
+#include "memoryCommands.h"
 #include "dynamicList.h"
 
 #define MAXENTRADA 2048
@@ -41,7 +42,7 @@ void DecidirComando(char *tr[]) {
     else if (!strcmp(tr[0], "deltree")) Cmd_deltree(&tr[1]);
     else if (!strcmp(tr[0], "listfile")) Cmd_listfile(&tr[1]);
     else if (!strcmp(tr[0], "list")) Cmd_list(&tr[1]);
-    else if (!strcmp(tr[0], "allocate")) Cmd_allocate();
+    else if (!strcmp(tr[0], "allocate")) Cmd_allocate(&tr[1], &MemoriaAlocada);
     else if (!strcmp(tr[0], "deallocate")) Cmd_deallocate();
     else if (!strcmp(tr[0], "i-o")) Cmd_io();
     else if (!strcmp(tr[0], "memory")) Cmd_memory();

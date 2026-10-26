@@ -11,46 +11,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/ipc.h>
+#include <sys/mman.h>
+#include <sys/shm.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/utsname.h>
 #include <time.h>
 #include <unistd.h>
 
-#include "comandos.h"
 #include "dynamicList.h"
-
-enum allocationType {
-    MALLOC,
-    SHARED,
-    MAPPED
-};
-
-typedef struct memory {
-    void *memoryAddress;
-    size_t size;
-    time_t allocationTime;
-    enum allocationType type;
-
-    union {
-        struct {
-            key_t key;
-            int shmid;
-        } shared;
-
-        struct {
-            int fd;
-            char* fileName;
-        } mapped;
-    } u;
-} memory;
+#include "shellCommands.h"
 
 /* The specific payload is now defined separately, no longer tied to the list */
 typedef struct OpenFile {
-    int fd;          // file descriptor
-    char *filename;  // file name
-    int flags;       // flags the file was opened with
-} *OpenFile;         // note: now a struct type, not a pointer typedef
+    int fd;         // file descriptor
+    char *filename; // file name
+    int flags;      // flags the file was opened with
+} *OpenFile;        // note: now a struct type, not a pointer typedef
 
 static int matchByFd(const void *item, const void *key) {
     const struct OpenFile *f = item;
@@ -65,17 +43,6 @@ static void LiberaOpenFile(void *ptr) {
     if (of != NULL) {
         if (of->filename != NULL) {
             free(of->filename);
-        }
-        free(of);
-    }
-}
-
-static void LiberaMemoria(void *ptr) {
-    memory* of = (memory*)ptr;
-
-    if (of != NULL) {
-        if (of->type == MAPPED && of->u.mapped.fileName != NULL) {
-            free(of->u.mapped.fileName);
         }
         free(of);
     }
@@ -152,10 +119,6 @@ void InicializarFicherosAbiertos(tList *FicherosAbiertos) {
 
 void VaciarFicherosAbiertos(tList *FicherosAbiertos) {
     deleteListWithData(FicherosAbiertos, LiberaOpenFile);
-}
-
-void VaciarMemoria(tList *MemoriaAlocada) {
-    deleteListWithData(MemoriaAlocada, LiberaMemoria);
 }
 
 /* ───────────────────── FUNCIONES AUXILIARES DE FICHEROS ───────────────────── */
@@ -936,23 +899,4 @@ void Cmd_list(char *tr[]) {
             PrintFileItem(tr[i], tr[i], long_listing, show_link, use_acc_time);
         }
     }
-}
-
-void Cmd_allocate() {
-}
-void Cmd_deallocate() {
-}
-void Cmd_io() {
-}
-void Cmd_memory() {
-}
-void Cmd_read() {
-}
-void Cmd_write() {
-}
-void Cmd_recurse() {
-}
-void Cmd_memfill() {
-}
-void Cmd_memdump() {
 }
