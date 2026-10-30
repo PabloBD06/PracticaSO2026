@@ -490,7 +490,7 @@ void Cmd_deallocate(char *tr[], tList *MemoriaAlocada) {
             printf("delkey necesita clave_valida\n");
             return;
         }
-        do_SharedDelkey();
+        doDeallocateDelkey(key);
     }
     // Caso mmap
     else if (strcmp(tr[0], "-mmap") == 0) {
