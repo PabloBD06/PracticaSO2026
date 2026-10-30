@@ -118,7 +118,7 @@ int mallocLocal(ssize_t siz, tList *list) {
     item->size = siz;
     item->type = MALLOC;
 
-    if (insertItem(item, LNULL, list)) {
+    if (!insertItem(item, LNULL, list)) {
         free(alocated);
         LiberarMemoria(item);
         return -1;
@@ -157,7 +157,7 @@ int createSharedLocal(key_t cl, ssize_t siz, tList *list) {
     item->u.shared.key = cl;
     item->u.shared.shmid = shmid;
 
-    if (insertItem(item, LNULL, list)) {
+    if (!insertItem(item, LNULL, list)) {
         shmdt(address);
         shmctl(shmid, IPC_RMID, NULL);
         LiberarMemoria(item);
@@ -196,7 +196,7 @@ int sharedLocal(key_t cl, tList *list) {
     item->u.shared.key = cl;
     item->u.shared.shmid = shmid;
 
-    if (insertItem(item, LNULL, list)) {
+    if (!insertItem(item, LNULL, list)) {
         shmdt(address);
         free(item);
         return -1;
@@ -249,7 +249,7 @@ int mmapLocal(char *fil, char *perm, tList *list) {
     item->u.mapped.fd = fd;
     item->u.mapped.fileName = name;
 
-    if (insertItem(item, LNULL, list)) {
+    if (!insertItem(item, LNULL, list)) {
         LiberarMemoria(item);
         munmap(addr, st.st_size);
         close(fd);
