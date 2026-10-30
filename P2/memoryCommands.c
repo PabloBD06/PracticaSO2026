@@ -1,6 +1,7 @@
 // Autor1: Pablo Bea Dopazo login: pablo.bea.dopazo
 // Autor2: Szymon Arthur Zieba Glaz login: szymon.zieba
 
+#include <ctype.h>
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -21,6 +22,8 @@
 
 #include "dynamicList.h"
 #include "memoryCommands.h"
+
+#define BYTES_PER_LINE 10
 
 enum allocationType {
     MALLOC,
@@ -355,6 +358,32 @@ void doDeallocateAddress(void *addr, tList *MemoriaAlocada) {
     printf("No ejecutado: No such file or directory");
 }
 
+static void printAddress(void *addr) {
+    printf("%p-> ", addr);
+}
+
+void dumpMemory(void *addr, int siz) {
+    unsigned char *p = addr;
+
+    for (int offset = 0; offset < siz; offset += BYTES_PER_LINE) {
+
+        int n = siz - offset;
+        if (n > BYTES_PER_LINE) n = BYTES_PER_LINE;
+
+        printAddress(p + offset);
+        for (int i = 0; i < n; i++) {
+            putchar(isprint(p[offset + i]) ? p[offset + i] : ' ');
+        }
+        printf("\n");
+
+        printAddress(p + offset);
+        for (int i = 0; i < n; i++) {
+            printf("%02x ", p[offset + i]);
+        }
+        printf("\n");
+    }
+}
+
 /* ───────────────────── COMANDOS DE MEMORIA ───────────────────── */
 
 int Cmd_allocate(char *tr[], tList *list) {
@@ -517,5 +546,18 @@ void Cmd_recurse() {
 }
 void Cmd_memfill() {
 }
-void Cmd_memdump() {
+
+int Cmd_memdump(char *tr[]) {
+
+    if (tr[0] == NULL || tr[1] == NULL) {
+        printf("usage: memdump <addr> <size>\n");
+        return -1;
+    }
+
+    void *addr = (void *)(uintptr_t)strtoull(tr[0], NULL, 16);
+    int siz = atoi(tr[1]);
+
+    dumpMemory(addr, siz);
+
+    return 0;
 }
