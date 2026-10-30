@@ -6,6 +6,7 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,7 +18,6 @@
 #include <sys/utsname.h>
 #include <time.h>
 #include <unistd.h>
-#include <stdint.h>
 
 #include "dynamicList.h"
 #include "memoryCommands.h"
@@ -67,7 +67,7 @@ void ListarMemoria(tList *MemoriaAlocada) {
 
     for (tPosL pos = first(*MemoriaAlocada); pos != LNULL; pos = next(pos, *MemoriaAlocada)) {
 
-        memory *m = (memory *) getItem(pos, *MemoriaAlocada);
+        memory *m = (memory *)getItem(pos, *MemoriaAlocada);
 
         char date[7];
         char hour[6];
@@ -86,12 +86,10 @@ void ListarMemoria(tList *MemoriaAlocada) {
 
         if (m->type == MALLOC) {
             printf("malloc\n");
-        }
-        else if (m->type == SHARED) {
+        } else if (m->type == SHARED) {
             printf("shared (key %d)\n",
-                   (int) m->u.shared.key);
-        }
-        else if (m->type == MAPPED) {
+                   (int)m->u.shared.key);
+        } else if (m->type == MAPPED) {
             printf("%s (descriptor %d)\n",
                    m->u.mapped.fileName,
                    m->u.mapped.fd);
@@ -214,7 +212,7 @@ int mmapLocal(char *fil, char *perm, tList *list) {
     if (strchr(perm, 'w')) prot |= PROT_WRITE;
     if (strchr(perm, 'x')) prot |= PROT_EXEC;
     int oflags = strchr(perm, 'w') ? O_RDWR : O_RDONLY;
-    //Tendremos que usar cmd open para que quede reflejado en nuestra lista
+    // Tendremos que usar cmd open para que quede reflejado en nuestra lista
     int fd = open(fil, oflags);
 
     if (fd == -1) {
@@ -261,12 +259,12 @@ int mmapLocal(char *fil, char *perm, tList *list) {
     return 0;
 }
 
-//Creo que puede desbordar si size es muy grande
-void doDeallocateMalloc(size_t size, tList *MemoriaAlocada){
-    for(tPosL pos = first(*MemoriaAlocada); pos != LNULL; pos = next(pos,*MemoriaAlocada)){
+// Creo que puede desbordar si size es muy grande
+void doDeallocateMalloc(size_t size, tList *MemoriaAlocada) {
+    for (tPosL pos = first(*MemoriaAlocada); pos != LNULL; pos = next(pos, *MemoriaAlocada)) {
         tItemL item = getItem(pos, *MemoriaAlocada);
-        memory *m = (memory *) item;
-        if(m->type == MALLOC && m->size == size){
+        memory *m = (memory *)item;
+        if (m->type == MALLOC && m->size == size) {
             free(m->memoryAddress);
             LiberarMemoria(m);
             deleteAtPosition(pos, MemoriaAlocada);
@@ -276,10 +274,10 @@ void doDeallocateMalloc(size_t size, tList *MemoriaAlocada){
     printf("No hay bloque de ese tamano asignado con malloc");
 }
 void doDeallocateShared(key_t key, tList *MemoriaAlocada) {
-    for(tPosL pos = first(*MemoriaAlocada); pos != LNULL; pos = next(pos,*MemoriaAlocada)){
+    for (tPosL pos = first(*MemoriaAlocada); pos != LNULL; pos = next(pos, *MemoriaAlocada)) {
         tItemL item = getItem(pos, *MemoriaAlocada);
-        memory *m = (memory *) item;
-        if(m->type == SHARED && m->u.shared.key == key){
+        memory *m = (memory *)item;
+        if (m->type == SHARED && m->u.shared.key == key) {
             if (shmdt(m->memoryAddress) == -1) {
                 perror("shmdt");
                 return;
@@ -298,22 +296,23 @@ void doDeallocateDelkey(key_t key) {
         perror("shmget");
         return;
     }
-    //Me falta entender que son el segundo y tercer argumento
+    // Me falta entender que son el segundo y tercer argumento
     if (shmctl(shmid, IPC_RMID, NULL) == -1) {
         perror("shmctl");
         return;
     }
 }
-void doDeallocateMmap(char *filename, tList *MemoriaAlocada){
-    for(tPosL pos = first(*MemoriaAlocada); pos != LNULL; pos = next(pos,*MemoriaAlocada)){
+
+void doDeallocateMmap(char *filename, tList *MemoriaAlocada) {
+    for (tPosL pos = first(*MemoriaAlocada); pos != LNULL; pos = next(pos, *MemoriaAlocada)) {
         tItemL item = getItem(pos, *MemoriaAlocada);
-        memory *m = (memory *) item;
-        if(m->type == MAPPED && strcmp(m->u.mapped.fileName, filename) == 0){
-            if(munmap(m->memoryAddress, m->size) == -1){
+        memory *m = (memory *)item;
+        if (m->type == MAPPED && strcmp(m->u.mapped.fileName, filename) == 0) {
+            if (munmap(m->memoryAddress, m->size) == -1) {
                 perror("munmap");
                 return;
             }
-            //tengo que buscar una forma de llamar a cmd close porque si no no usa nuestra lista de ficheros
+            // tengo que buscar una forma de llamar a cmd close porque si no no usa nuestra lista de ficheros
             close(m->u.mapped.fd);
             LiberarMemoria(m);
             deleteAtPosition(pos, MemoriaAlocada);
@@ -322,30 +321,29 @@ void doDeallocateMmap(char *filename, tList *MemoriaAlocada){
     }
     printf("No hay bloque de esa clave mapeado para el proceso");
 }
-void doDeallocateAddress(void* addr, tList *MemoriaAlocada){
-     for(tPosL pos = first(*MemoriaAlocada); pos != LNULL; pos = next(pos,*MemoriaAlocada)){
+
+void doDeallocateAddress(void *addr, tList *MemoriaAlocada) {
+    for (tPosL pos = first(*MemoriaAlocada); pos != LNULL; pos = next(pos, *MemoriaAlocada)) {
         tItemL item = getItem(pos, *MemoriaAlocada);
-        memory *m = (memory *) item;
-        if(m->memoryAddress == addr){
-            if(m->type == MALLOC){
+        memory *m = (memory *)item;
+        if (m->memoryAddress == addr) {
+            if (m->type == MALLOC) {
                 free(m->memoryAddress);
                 LiberarMemoria(m);
                 deleteAtPosition(pos, MemoriaAlocada);
                 return;
-            }
-            else if(m->type == SHARED){
+            } else if (m->type == SHARED) {
                 if (shmdt(m->memoryAddress) == -1) {
-                perror("shmdt");
-                return;
+                    perror("shmdt");
+                    return;
                 }
                 LiberarMemoria(m);
                 deleteAtPosition(pos, MemoriaAlocada);
-            return;
-            }
-            else if(m->type == MAPPED){
-                if(munmap(m->memoryAddress, m->size) == -1){
-                perror("munmap");
                 return;
+            } else if (m->type == MAPPED) {
+                if (munmap(m->memoryAddress, m->size) == -1) {
+                    perror("munmap");
+                    return;
                 }
                 close(m->u.mapped.fd);
                 LiberarMemoria(m);
@@ -353,7 +351,7 @@ void doDeallocateAddress(void* addr, tList *MemoriaAlocada){
                 return;
             }
         }
-    }   
+    }
     printf("No ejecutado: No such file or directory");
 }
 
@@ -364,6 +362,7 @@ int Cmd_allocate(char *tr[], tList *list) {
         ListarMemoria(list);
         return 0;
     }
+
     if (!strcmp(tr[0], "-malloc")) {
         ssize_t siz;
 
@@ -447,12 +446,12 @@ int Cmd_allocate(char *tr[], tList *list) {
 }
 
 void Cmd_deallocate(char *tr[], tList *MemoriaAlocada) {
-    //Sin argumentos-> Listar memoria
+    // Sin argumentos-> Listar memoria
     if (tr[0] == NULL) {
         ListarMemoria(MemoriaAlocada);
         return;
     }
-    //Caso malloc
+    // Caso malloc
     if (strcmp(tr[0], "-malloc") == 0) {
         if (tr[1] == NULL) {
             printf("Faltan argumentos\n");
@@ -468,18 +467,18 @@ void Cmd_deallocate(char *tr[], tList *MemoriaAlocada) {
 
         doDeallocateMalloc((size_t)size, MemoriaAlocada);
     }
-    //Caso shared
+    // Caso shared
     else if (strcmp(tr[0], "-shared") == 0) {
         if (tr[1] == NULL) {
             printf("Faltan argumentos\n");
             return;
         }
-         int key = atoi(tr[1]);
-         doDeallocateShared((key_t) key, MemoriaAlocada);
+        int key = atoi(tr[1]);
+        doDeallocateShared((key_t)key, MemoriaAlocada);
     }
-    //Caso delkey
+    // Caso delkey
     else if (strcmp(tr[0], "-delkey") == 0) {
-       if (tr[1] == NULL) {
+        if (tr[1] == NULL) {
             printf("Faltan argumentos\n");
             return;
         }
@@ -500,13 +499,13 @@ void Cmd_deallocate(char *tr[], tList *MemoriaAlocada) {
         }
         doDeallocateMmap(tr[1], MemoriaAlocada);
     }
-    //Caso Addr
+    // Caso Addr
     else {
-        void *addr = (void *) (uintptr_t) strtoull(tr[0], NULL, 16);
+        void *addr = (void *)(uintptr_t)strtoull(tr[0], NULL, 16);
         doDeallocateAddress(addr, MemoriaAlocada);
     }
 }
-void Cmd_io(){
+void Cmd_io() {
 }
 void Cmd_memory() {
 }
