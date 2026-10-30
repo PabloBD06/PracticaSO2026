@@ -11,7 +11,7 @@ void VaciarFicherosAbiertos(tList *FicherosAbiertos);
 void VaciarMemoria(tList *MemoriaAlocada);
 
 int Cmd_allocate(char *tr[], tList *MemoriaAlocada);
-void Cmd_deallocate();
+void Cmd_deallocate(char *tr[], tList *MemoriaAlocada);
 void Cmd_io();
 void Cmd_memory();
 void Cmd_read();

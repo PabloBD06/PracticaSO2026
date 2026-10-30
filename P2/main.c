@@ -43,7 +43,7 @@ void DecidirComando(char *tr[]) {
     else if (!strcmp(tr[0], "listfile")) Cmd_listfile(&tr[1]);
     else if (!strcmp(tr[0], "list")) Cmd_list(&tr[1]);
     else if (!strcmp(tr[0], "allocate")) Cmd_allocate(&tr[1], &MemoriaAlocada);
-    else if (!strcmp(tr[0], "deallocate")) Cmd_deallocate();
+    else if (!strcmp(tr[0], "deallocate")) Cmd_deallocate(&tr[1], &MemoriaAlocada);
     else if (!strcmp(tr[0], "i-o")) Cmd_io();
     else if (!strcmp(tr[0], "memory")) Cmd_memory();
     else if (!strcmp(tr[0], "read")) Cmd_write();
