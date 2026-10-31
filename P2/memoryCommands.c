@@ -275,6 +275,7 @@ void doDeallocateMalloc(size_t size, tList *MemoriaAlocada) {
     }
     printf("No hay bloque de ese tamano asignado con malloc");
 }
+
 void doDeallocateShared(key_t key, tList *MemoriaAlocada) {
     for (tPosL pos = first(*MemoriaAlocada); pos != LNULL; pos = next(pos, *MemoriaAlocada)) {
         tItemL item = getItem(pos, *MemoriaAlocada);
@@ -291,6 +292,7 @@ void doDeallocateShared(key_t key, tList *MemoriaAlocada) {
     }
     printf("No hay bloque de esa clave mapeado para el proceso");
 }
+
 void doDeallocateDelkey(key_t key) {
     int shmid = shmget(key, 0, 0666);
 
