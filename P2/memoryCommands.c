@@ -102,8 +102,8 @@ void ListarMemoria(tList *MemoriaAlocada) {
 
 /* ───────────────────── FUNCIONES AUXILIARES ───────────────────── */
 
-int mallocLocal(ssize_t siz, tList *list) {
-    if (siz <= 0) {
+int mallocLocal(size_t siz, tList *list) {
+    if (siz == 0) {
         return -1;
     }
 
@@ -130,9 +130,8 @@ int mallocLocal(ssize_t siz, tList *list) {
     return 0;
 }
 
-int createSharedLocal(key_t cl, ssize_t siz, tList *list) {
-
-    if (siz <= 0) {
+int createSharedLocal(key_t cl, size_t siz, tList *list) {
+    if (siz == 0) {
         return -1;
     }
 
@@ -393,7 +392,7 @@ int Cmd_allocate(char *tr[], tList *list) {
     }
 
     if (!strcmp(tr[0], "-malloc")) {
-        ssize_t siz;
+        size_t siz;
 
         if (tr[1] == NULL) {
             fprintf(stderr, "allocate: -malloc needs <siz>\n");
@@ -416,7 +415,7 @@ int Cmd_allocate(char *tr[], tList *list) {
 
     } else if (!strcmp(tr[0], "-createshared")) {
         key_t cl;
-        ssize_t siz;
+        size_t siz;
 
         if (tr[1] == NULL || tr[2] == NULL) {
             fprintf(stderr, "allocate: -createshared needs <key> <size>\n");
