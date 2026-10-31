@@ -402,7 +402,7 @@ void dumpMemory(void *addr, int siz) {
 
         printAddress(p + offset);
         for (int i = 0; i < n; i++) {
-            putchar(isprint(p[offset + i]) ? p[offset + i] : ' ');
+            printf(" %c ", p[offset + i]);
         }
         printf("\n");
 
