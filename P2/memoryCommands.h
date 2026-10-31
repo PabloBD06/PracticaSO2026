@@ -17,7 +17,7 @@ void Cmd_memory();
 void Cmd_read();
 void Cmd_write();
 void Cmd_recurse();
-void Cmd_memfill();
+int Cmd_memfill(char *tr[]);
 int Cmd_memdump(char *tr[]);
 
 #endif

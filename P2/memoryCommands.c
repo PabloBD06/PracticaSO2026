@@ -102,6 +102,25 @@ void ListarMemoria(tList *MemoriaAlocada) {
 
 /* ───────────────────── FUNCIONES AUXILIARES ───────────────────── */
 
+int parseHexChar(const char *str, char *out)
+{
+    // must start with "0x" or "0X"
+    if (str[0] != '0' || (str[1] != 'x' && str[1] != 'X'))
+        return -1;
+
+    const char *digits = str + 2;
+
+    // need at least two valid hex digits (checking [0] first
+    // also guarantees we never read past the string's '\0')
+    if (!isxdigit((unsigned char)digits[0]) ||
+        !isxdigit((unsigned char)digits[1]))
+        return -1;
+
+    char buf[3] = { digits[0], digits[1], '\0' };
+    *out = (char)strtoul(buf, NULL, 16);
+    return 0;
+}
+
 int mallocLocal(size_t siz, tList *list) {
     if (siz == 0) {
         return -1;
@@ -363,6 +382,16 @@ static void printAddress(void *addr) {
     printf("%p-> ", addr);
 }
 
+void fillMemory(void *addr, size_t siz, char character) {
+    char *p = (char *)addr;
+    size_t i = 0;
+
+    while (i < siz) {
+        p[i] = character;
+        i++;
+    }
+}
+
 void dumpMemory(void *addr, int siz) {
     unsigned char *p = addr;
 
@@ -545,7 +574,21 @@ void Cmd_write() {
 }
 void Cmd_recurse() {
 }
-void Cmd_memfill() {
+
+int Cmd_memfill(char *tr[]) {
+    if (tr[0] == NULL || tr[1] == NULL || tr[2] == NULL) {
+        printf("usage: memfill <addr> <size> <hcode>\n");
+        return -1;
+    }
+
+    void *addr = (void *)(uintptr_t)strtoull(tr[0], NULL, 16);
+    size_t siz = strtoul(tr[1], NULL, 10);
+    char c; parseHexChar(tr[2], &c);
+
+    fillMemory(addr, siz, c);
+
+    return 0;
+
 }
 
 int Cmd_memdump(char *tr[]) {
