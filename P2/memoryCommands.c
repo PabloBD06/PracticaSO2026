@@ -107,22 +107,22 @@ int mallocLocal(ssize_t siz, tList *list) {
         return -1;
     }
 
-    void *alocated = malloc(siz);
+    void *addr = malloc(siz);
     memory *item = malloc(sizeof(struct memory));
 
-    if (item == NULL || alocated == NULL) {
-        free(alocated);
+    if (item == NULL || addr == NULL) {
+        free(addr);
         free(item);
         return -1;
     }
 
-    item->memoryAddress = alocated;
+    item->memoryAddress = addr;
     item->allocationTime = time(NULL);
     item->size = siz;
     item->type = MALLOC;
 
     if (!insertItem(item, LNULL, list)) {
-        free(alocated);
+        free(addr);
         LiberarMemoria(item);
         return -1;
     }
@@ -140,20 +140,20 @@ int createSharedLocal(key_t cl, ssize_t siz, tList *list) {
     if (shmid == -1) {
         return -1;
     }
-    void *address = shmat(shmid, NULL, 0);
-    if (address == (void *)-1) {
+    void *addr = shmat(shmid, NULL, 0);
+    if (addr == (void *)-1) {
         shmctl(shmid, IPC_RMID, NULL);
         return -1;
     }
 
     memory *item = malloc(sizeof(struct memory));
     if (item == NULL) {
-        shmdt(address);
+        shmdt(addr);
         shmctl(shmid, IPC_RMID, NULL);
         return -1;
     }
 
-    item->memoryAddress = address;
+    item->memoryAddress = addr;
     item->allocationTime = time(NULL);
     item->size = siz;
     item->type = SHARED;
@@ -161,7 +161,7 @@ int createSharedLocal(key_t cl, ssize_t siz, tList *list) {
     item->u.shared.shmid = shmid;
 
     if (!insertItem(item, LNULL, list)) {
-        shmdt(address);
+        shmdt(addr);
         shmctl(shmid, IPC_RMID, NULL);
         LiberarMemoria(item);
         return -1;
@@ -181,18 +181,18 @@ int sharedLocal(key_t cl, tList *list) {
         return -1;
     }
 
-    void *address = shmat(shmid, NULL, 0);
-    if (address == (void *)-1) {
+    void *addr = shmat(shmid, NULL, 0);
+    if (addr == (void *)-1) {
         return -1;
     }
 
     memory *item = malloc(sizeof(struct memory));
     if (item == NULL) {
-        shmdt(address);
+        shmdt(addr);
         return -1;
     }
 
-    item->memoryAddress = address;
+    item->memoryAddress = addr;
     item->allocationTime = time(NULL);
     item->size = buf.shm_segsz;
     item->type = SHARED;
@@ -200,7 +200,7 @@ int sharedLocal(key_t cl, tList *list) {
     item->u.shared.shmid = shmid;
 
     if (!insertItem(item, LNULL, list)) {
-        shmdt(address);
+        shmdt(addr);
         free(item);
         return -1;
     }
