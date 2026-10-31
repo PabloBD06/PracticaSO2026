@@ -430,7 +430,7 @@ int Cmd_allocate(char *tr[], tList *list) {
             return -1;
         }
 
-        siz = strtol(tr[1], NULL, 10);
+        siz = strtoull(tr[1], NULL, 10);
 
         if (siz <= 0) {
             fprintf(stderr, "allocate: -malloc needs a positive size\n");
@@ -454,7 +454,7 @@ int Cmd_allocate(char *tr[], tList *list) {
         }
 
         cl = atoi(tr[1]);
-        siz = strtol(tr[2], NULL, 10);
+        siz = strtoull(tr[2], NULL, 10);
 
         if (siz <= 0) {
             fprintf(stderr, "allocate: size needs to be greater than 0\n");
