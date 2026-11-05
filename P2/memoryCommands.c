@@ -121,9 +121,9 @@ int parseHexChar(const char *str, char *out)
     return 0;
 }
 
-int mallocLocal(size_t siz, tList *list) {
+void* mallocLocal(size_t siz, tList *list) {
     if (siz == 0) {
-        return -1;
+        return NULL;
     }
 
     void *addr = malloc(siz);
@@ -132,7 +132,7 @@ int mallocLocal(size_t siz, tList *list) {
     if (item == NULL || addr == NULL) {
         free(addr);
         free(item);
-        return -1;
+        return NULL;
     }
 
     item->memoryAddress = addr;
@@ -143,32 +143,32 @@ int mallocLocal(size_t siz, tList *list) {
     if (!insertItem(item, LNULL, list)) {
         free(addr);
         LiberarMemoria(item);
-        return -1;
+        return NULL;
     }
 
-    return 0;
+    return addr;
 }
 
-int createSharedLocal(key_t cl, size_t siz, tList *list) {
+void* createSharedLocal(key_t cl, size_t siz, tList *list) {
     if (siz == 0) {
-        return -1;
+        return NULL;
     }
 
     int shmid = shmget(cl, siz, IPC_CREAT | IPC_EXCL | 0666);
     if (shmid == -1) {
-        return -1;
+        return NULL;
     }
     void *addr = shmat(shmid, NULL, 0);
     if (addr == (void *)-1) {
         shmctl(shmid, IPC_RMID, NULL);
-        return -1;
+        return NULL;
     }
 
     memory *item = malloc(sizeof(struct memory));
     if (item == NULL) {
         shmdt(addr);
         shmctl(shmid, IPC_RMID, NULL);
-        return -1;
+        return NULL;
     }
 
     item->memoryAddress = addr;
@@ -182,32 +182,32 @@ int createSharedLocal(key_t cl, size_t siz, tList *list) {
         shmdt(addr);
         shmctl(shmid, IPC_RMID, NULL);
         LiberarMemoria(item);
-        return -1;
+        return NULL;
     }
 
-    return 0;
+    return addr;
 }
 
-int sharedLocal(key_t cl, tList *list) {
+void* sharedLocal(key_t cl, tList *list) {
     int shmid = shmget(cl, 0, 0666);
     if (shmid == -1) {
-        return -1;
+        return NULL;
     }
 
     struct shmid_ds buf;
     if (shmctl(shmid, IPC_STAT, &buf) == -1) {
-        return -1;
+        return NULL;
     }
 
     void *addr = shmat(shmid, NULL, 0);
     if (addr == (void *)-1) {
-        return -1;
+        return NULL;
     }
 
     memory *item = malloc(sizeof(struct memory));
     if (item == NULL) {
         shmdt(addr);
-        return -1;
+        return NULL;
     }
 
     item->memoryAddress = addr;
@@ -220,13 +220,13 @@ int sharedLocal(key_t cl, tList *list) {
     if (!insertItem(item, LNULL, list)) {
         shmdt(addr);
         free(item);
-        return -1;
+        return NULL;
     }
 
-    return 0;
+    return addr;
 }
 
-int mmapLocal(char *fil, char *perm, tList *list) {
+void* mmapLocal(char *fil, char *perm, tList *list) {
     int prot = 0;
 
     if (strchr(perm, 'r')) prot |= PROT_READ;
@@ -237,20 +237,20 @@ int mmapLocal(char *fil, char *perm, tList *list) {
     int fd = open(fil, oflags);
 
     if (fd == -1) {
-        return -1;
+        return NULL;
     }
 
     struct stat st;
     if (fstat(fd, &st) == -1 || st.st_size <= 0) {
         close(fd);
-        return -1;
+        return NULL;
     }
 
     void *addr = mmap(NULL, st.st_size, prot, MAP_SHARED, fd, 0);
 
     if (addr == MAP_FAILED) {
         close(fd);
-        return -1;
+        return NULL;
     }
 
     memory *item = malloc(sizeof(struct memory));
@@ -260,7 +260,7 @@ int mmapLocal(char *fil, char *perm, tList *list) {
         free(name);
         munmap(addr, st.st_size);
         close(fd);
-        return -1;
+        return NULL;
     }
 
     item->memoryAddress = addr;
@@ -274,10 +274,10 @@ int mmapLocal(char *fil, char *perm, tList *list) {
         LiberarMemoria(item);
         munmap(addr, st.st_size);
         close(fd);
-        return -1;
+        return NULL;
     }
 
-    return 0;
+    return addr;
 }
 
 // Creo que puede desbordar si size es muy grande
@@ -431,6 +431,8 @@ int Cmd_allocate(char *tr[], tList *list) {
         return 0;
     }
 
+    void *pointer;
+
     if (!strcmp(tr[0], "-malloc")) {
         size_t siz;
 
@@ -446,10 +448,14 @@ int Cmd_allocate(char *tr[], tList *list) {
             return -1;
         }
 
-        if (mallocLocal(siz, list)) {
+        pointer = mallocLocal(siz, list);
+
+        if (pointer == NULL) {
             fprintf(stderr, "allocate: \n");
             return -1;
         }
+
+        printf("Asignados %i bytes en %p\n", siz, pointer);
 
         return 0;
 
@@ -470,10 +476,14 @@ int Cmd_allocate(char *tr[], tList *list) {
             return -1;
         }
 
-        if (createSharedLocal(cl, siz, list)) {
-            fprintf(stderr, "allocate: \n");
+        pointer = createSharedLocal(cl, siz, list);
+
+        if (pointer == NULL) {
+            fprintf(stderr, "allocate: failed to reserve memory\n");
             return -1;
         }
+
+        printf("Asignados %i bytes en %p\n", siz, pointer);
 
         return 0;
 
@@ -487,10 +497,14 @@ int Cmd_allocate(char *tr[], tList *list) {
 
         cl = strtol(tr[1], NULL, 10);
 
-        if (sharedLocal(cl, list)) {
+        pointer = sharedLocal(cl, list);
+
+        if (pointer == NULL) {
             fprintf(stderr, "allocate: \n");
             return -1;
         }
+
+        printf("Memoria compartida de clave %i en %p\n", cl, pointer);
 
         return 0;
 
@@ -500,10 +514,14 @@ int Cmd_allocate(char *tr[], tList *list) {
             return -1;
         }
 
-        if (mmapLocal(tr[1], tr[2], list)) {
+        pointer = mmapLocal(tr[1], tr[2], list);
+
+        if (pointer == NULL) {
             fprintf(stderr, "allocate: \n");
             return -1;
         }
+
+        printf("fichero %s mapeado en %p\n", tr[1], pointer);
 
         return 0;
 
