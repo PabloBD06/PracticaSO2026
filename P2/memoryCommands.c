@@ -102,8 +102,7 @@ void ListarMemoria(tList *MemoriaAlocada) {
 
 /* ───────────────────── FUNCIONES AUXILIARES ───────────────────── */
 
-int parseHexChar(const char *str, char *out)
-{
+int parseHexChar(const char *str, char *out) {
     // must start with "0x" or "0X"
     if (str[0] != '0' || (str[1] != 'x' && str[1] != 'X'))
         return -1;
@@ -116,12 +115,12 @@ int parseHexChar(const char *str, char *out)
         !isxdigit((unsigned char)digits[1]))
         return -1;
 
-    char buf[3] = { digits[0], digits[1], '\0' };
+    char buf[3] = {digits[0], digits[1], '\0'};
     *out = (char)strtoul(buf, NULL, 16);
     return 0;
 }
 
-void* mallocLocal(size_t siz, tList *list) {
+void *mallocLocal(size_t siz, tList *list) {
     if (siz == 0) {
         return NULL;
     }
@@ -149,7 +148,7 @@ void* mallocLocal(size_t siz, tList *list) {
     return addr;
 }
 
-void* createSharedLocal(key_t cl, size_t siz, tList *list) {
+void *createSharedLocal(key_t cl, size_t siz, tList *list) {
     if (siz == 0) {
         return NULL;
     }
@@ -188,7 +187,7 @@ void* createSharedLocal(key_t cl, size_t siz, tList *list) {
     return addr;
 }
 
-void* sharedLocal(key_t cl, tList *list) {
+void *sharedLocal(key_t cl, tList *list) {
     int shmid = shmget(cl, 0, 0666);
     if (shmid == -1) {
         return NULL;
@@ -226,7 +225,7 @@ void* sharedLocal(key_t cl, tList *list) {
     return addr;
 }
 
-void* mmapLocal(char *fil, char *perm, tList *list) {
+void *mmapLocal(char *fil, char *perm, tList *list) {
     int prot = 0;
 
     if (strchr(perm, 'r')) prot |= PROT_READ;
@@ -418,7 +417,7 @@ void recurse(int n) {
     static int staticArray[2048];
 
     printf("parametro: %i (%p) array %p, array estatico %p\n", n, &n, array, staticArray);
-    if (n > 0) 
+    if (n > 0)
         recurse(n - 1);
 }
 
@@ -590,26 +589,27 @@ void Cmd_deallocate(char *tr[], tList *MemoriaAlocada) {
         doDeallocateAddress(addr, MemoriaAlocada);
     }
 }
-void Cmd_io(char *tr[]){
-    if(tr[0] == NULL){
+
+void Cmd_io(char *tr[]) {
+    if (tr[0] == NULL) {
         printf("uso: i-o [read|write] ......");
         return;
     }
-    //Caso read
-    if(!strcmp(tr[0], "read")){
-        if(tr[1] == NULL || tr[2] == NULL || tr[3] == NULL){
+    // Caso read
+    if (!strcmp(tr[0], "read")) {
+        if (tr[1] == NULL || tr[2] == NULL || tr[3] == NULL) {
             printf("Faltan parametros");
             return;
         }
         int fd = open(tr[1], O_RDONLY);
-        if(fd == -1){
+        if (fd == -1) {
             perror("open");
             return;
         }
-        void *addr = (void *) (uintptr_t) strtoull(tr[2], NULL, 16);
+        void *addr = (void *)(uintptr_t)strtoull(tr[2], NULL, 16);
         size_t cont = atoi(tr[3]);
         ssize_t bytesleidos = read(fd, addr, cont);
-        if(bytesleidos == -1){
+        if (bytesleidos == -1) {
             perror("read");
             close(fd);
             return;
@@ -621,75 +621,76 @@ void Cmd_io(char *tr[]){
         printf("leidos %zd bytes de %s en %p\n", bytesleidos, tr[1], addr);
         return;
     }
-    //Caso write
-    if(!strcmp(tr[0], "write")){
-        if(tr[1] == NULL || tr[2] == NULL || tr[3] == NULL){
+    // Caso write
+    if (!strcmp(tr[0], "write")) {
+        if (tr[1] == NULL || tr[2] == NULL || tr[3] == NULL) {
             printf("Faltan parametros");
             return;
         }
-        if(!strcmp(tr[1], "-o")){
-            if(tr[4] == NULL){
+        if (!strcmp(tr[1], "-o")) {
+            if (tr[4] == NULL) {
                 printf("Faltan parametros");
                 return;
             }
             int fd = open(tr[2], O_WRONLY | O_CREAT | O_TRUNC, 0666);
-            if(fd == -1){
+            if (fd == -1) {
                 perror("open");
                 return;
             }
-            void *addr = (void *) (uintptr_t) strtoull(tr[3], NULL, 16);
+            void *addr = (void *)(uintptr_t)strtoull(tr[3], NULL, 16);
             int cont = atoi(tr[4]);
             ssize_t bytesescritos = write(fd, addr, cont);
-            if(bytesescritos == -1){
+            if (bytesescritos == -1) {
                 perror("write");
                 close(fd);
                 return;
             }
             if (close(fd) == -1) {
-            perror("close");
-            return;
+                perror("close");
+                return;
             }
             printf("escritos %zd bytes en %s desde %p\n", bytesescritos, tr[2], addr);
             return;
-        }
-        else{
-           int fd = open(tr[1], O_WRONLY | O_CREAT | O_EXCL, 0666);
-            if(fd == -1){
+        } else {
+            int fd = open(tr[1], O_WRONLY | O_CREAT | O_EXCL, 0666);
+            if (fd == -1) {
                 perror("open");
                 return;
             }
-            void *addr = (void *) (uintptr_t) strtoull(tr[2], NULL, 16);
+            void *addr = (void *)(uintptr_t)strtoull(tr[2], NULL, 16);
             int cont = atoi(tr[3]);
             ssize_t bytesescritos = write(fd, addr, cont);
-            if(bytesescritos == -1){
+            if (bytesescritos == -1) {
                 perror("write");
                 close(fd);
                 return;
             }
             if (close(fd) == -1) {
-            perror("close");
-            return;
+                perror("close");
+                return;
             }
             printf("escritos %zd bytes en %s desde %p\n", bytesescritos, tr[1], addr);
             return;
         }
     }
-    //si no ponen ni read ni write
+    // si no ponen ni read ni write
     printf("uso: i-o [read|write] ......");
     return;
 }
+
 void Cmd_memory() {
 }
-void Cmd_read(char *tr[]){
-    if(tr[0] == NULL || tr[1] == NULL || tr[2] == NULL){
-            printf("Parametros incorrectos");
-            return;
+
+void Cmd_read(char *tr[]) {
+    if (tr[0] == NULL || tr[1] == NULL || tr[2] == NULL) {
+        printf("Parametros incorrectos");
+        return;
     }
     int fd = atoi(tr[0]);
-    void *addr = (void *) (uintptr_t) strtoull(tr[1], NULL, 16);
+    void *addr = (void *)(uintptr_t)strtoull(tr[1], NULL, 16);
     size_t cont = atoi(tr[2]);
     ssize_t bytesleidos = read(fd, addr, cont);
-    if(bytesleidos == -1){
+    if (bytesleidos == -1) {
         perror("read");
         return;
     }
@@ -698,15 +699,15 @@ void Cmd_read(char *tr[]){
 }
 
 void Cmd_write(char *tr[]) {
-    if(tr[0] == NULL || tr[1] == NULL || tr[2] == NULL){
-            printf("Parametros incorrectos");
-            return;
+    if (tr[0] == NULL || tr[1] == NULL || tr[2] == NULL) {
+        printf("Parametros incorrectos");
+        return;
     }
     int fd = atoi(tr[0]);
-    void *addr = (void *) (uintptr_t) strtoull(tr[1], NULL, 16);
+    void *addr = (void *)(uintptr_t)strtoull(tr[1], NULL, 16);
     size_t cont = atoi(tr[2]);
     ssize_t bytesescritos = write(fd, addr, cont);
-    if(bytesescritos == -1){
+    if (bytesescritos == -1) {
         perror("write");
         return;
     }
@@ -734,12 +735,12 @@ int Cmd_memfill(char *tr[]) {
 
     void *addr = (void *)(uintptr_t)strtoull(tr[0], NULL, 16);
     size_t siz = strtoul(tr[1], NULL, 10);
-    char c; parseHexChar(tr[2], &c);
+    char c;
+    parseHexChar(tr[2], &c);
 
     fillMemory(addr, siz, c);
 
     return 0;
-
 }
 
 int Cmd_memdump(char *tr[]) {
