@@ -414,6 +414,15 @@ void dumpMemory(void *addr, int siz) {
     }
 }
 
+void recurse(int n) {
+    int array[2048];
+    static int staticArray[2048];
+
+    printf("parametro: %i (%p) array %p, array estatico %p\n", n, &n, array, staticArray);
+    if (n > 0) 
+        recurse(n - 1);
+}
+
 /* ───────────────────── COMANDOS DE MEMORIA ───────────────────── */
 
 int Cmd_allocate(char *tr[], tList *list) {
@@ -572,7 +581,17 @@ void Cmd_read() {
 }
 void Cmd_write() {
 }
-void Cmd_recurse() {
+
+int Cmd_recurse(char *tr[]) {
+    if (tr[0] == NULL) {
+        printf("usage: <n>\n");
+        return -1;
+    }
+
+    int n = atoi(tr[0]);
+
+    recurse(n);
+    return 0;
 }
 
 int Cmd_memfill(char *tr[]) {
