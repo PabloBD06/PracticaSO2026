@@ -454,7 +454,7 @@ int Cmd_allocate(char *tr[], tList *list) {
             return -1;
         }
 
-        printf("Asignados %i bytes en %p\n", siz, pointer);
+        printf("Asignados %li bytes en %p\n", siz, pointer);
 
         return 0;
 
@@ -482,7 +482,7 @@ int Cmd_allocate(char *tr[], tList *list) {
             return -1;
         }
 
-        printf("Asignados %i bytes en %p\n", siz, pointer);
+        printf("Asignados %li bytes en %p\n", siz, pointer);
 
         return 0;
 
