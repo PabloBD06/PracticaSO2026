@@ -22,6 +22,8 @@
 #include "dynamicList.h"
 #include "memoryCommands.h"
 
+#define TAMANO 2048
+
 enum allocationType {
     MALLOC,
     SHARED,
@@ -68,7 +70,6 @@ void ListarMemoria(tList *MemoriaAlocada) {
     for (tPosL pos = first(*MemoriaAlocada); pos != LNULL; pos = next(pos, *MemoriaAlocada)) {
 
         memory *m = (memory *) getItem(pos, *MemoriaAlocada);
-
         char date[7];
         char hour[6];
 
@@ -100,6 +101,15 @@ void ListarMemoria(tList *MemoriaAlocada) {
 }
 
 /* ───────────────────── FUNCIONES AUXILIARES ───────────────────── */
+void Recursiva(int n) {
+    char automatico[TAMANO];
+    static char estatico[TAMANO];
+
+    printf("parametro:%3d(%p) array %p, arr estatico %p\n", n, &n, automatico, estatico);
+
+    if (n > 0)
+        Recursiva(n - 1);
+}
 
 int mallocLocal(ssize_t siz, tList *list) {
     if (siz <= 0) {
@@ -120,7 +130,7 @@ int mallocLocal(ssize_t siz, tList *list) {
     item->size = siz;
     item->type = MALLOC;
 
-    if (insertItem(item, LNULL, list)) {
+    if (!insertItem(item, LNULL, list)) {
         free(alocated);
         LiberarMemoria(item);
         return -1;
@@ -159,7 +169,7 @@ int createSharedLocal(key_t cl, ssize_t siz, tList *list) {
     item->u.shared.key = cl;
     item->u.shared.shmid = shmid;
 
-    if (insertItem(item, LNULL, list)) {
+    if (!insertItem(item, LNULL, list)) {
         shmdt(address);
         shmctl(shmid, IPC_RMID, NULL);
         LiberarMemoria(item);
@@ -198,7 +208,7 @@ int sharedLocal(key_t cl, tList *list) {
     item->u.shared.key = cl;
     item->u.shared.shmid = shmid;
 
-    if (insertItem(item, LNULL, list)) {
+    if (!insertItem(item, LNULL, list)) {
         shmdt(address);
         free(item);
         return -1;
@@ -250,8 +260,7 @@ int mmapLocal(char *fil, char *perm, tList *list) {
     item->type = MAPPED;
     item->u.mapped.fd = fd;
     item->u.mapped.fileName = name;
-
-    if (insertItem(item, LNULL, list)) {
+    if (!insertItem(item, LNULL, list)) {
         LiberarMemoria(item);
         munmap(addr, st.st_size);
         close(fd);
@@ -506,15 +515,135 @@ void Cmd_deallocate(char *tr[], tList *MemoriaAlocada) {
         doDeallocateAddress(addr, MemoriaAlocada);
     }
 }
-void Cmd_io(){
+void Cmd_io(char *tr[]){
+    if(tr[0] == NULL){
+        printf("uso: i-o [read|write] ......");
+        return;
+    }
+    //Caso read
+    if(!strcmp(tr[0], "read")){
+        if(tr[1] == NULL || tr[2] == NULL || tr[3] == NULL){
+            printf("Faltan parametros");
+            return;
+        }
+        int fd = open(tr[1], O_RDONLY);
+        if(fd == -1){
+            perror("open");
+            return;
+        }
+        void *addr = (void *) (uintptr_t) strtoull(tr[2], NULL, 16);
+        size_t cont = atoi(tr[3]);
+        ssize_t bytesleidos = read(fd, addr, cont);
+        if(bytesleidos == -1){
+            perror("read");
+            close(fd);
+            return;
+        }
+        if (close(fd) == -1) {
+            perror("close");
+            return;
+        }
+        printf("leidos %zd bytes de %s en %p\n", bytesleidos, tr[1], addr);
+        return;
+    }
+    //Caso write
+    if(!strcmp(tr[0], "write")){
+        if(tr[1] == NULL || tr[2] == NULL || tr[3] == NULL){
+            printf("Faltan parametros");
+            return;
+        }
+        if(!strcmp(tr[1], "-o")){
+            if(tr[4] == NULL){
+                printf("Faltan parametros");
+                return;
+            }
+            int fd = open(tr[2], O_WRONLY | O_CREAT | O_TRUNC, 0666);
+            if(fd == -1){
+                perror("open");
+                return;
+            }
+            void *addr = (void *) (uintptr_t) strtoull(tr[3], NULL, 16);
+            int cont = atoi(tr[4]);
+            ssize_t bytesescritos = write(fd, addr, cont);
+            if(bytesescritos == -1){
+                perror("write");
+                close(fd);
+                return;
+            }
+            if (close(fd) == -1) {
+            perror("close");
+            return;
+            }
+            printf("escritos %zd bytes en %s desde %p\n", bytesescritos, tr[2], addr);
+            return;
+        }
+        else{
+           int fd = open(tr[1], O_WRONLY | O_CREAT | O_EXCL, 0666);
+            if(fd == -1){
+                perror("open");
+                return;
+            }
+            void *addr = (void *) (uintptr_t) strtoull(tr[2], NULL, 16);
+            int cont = atoi(tr[3]);
+            ssize_t bytesescritos = write(fd, addr, cont);
+            if(bytesescritos == -1){
+                perror("write");
+                close(fd);
+                return;
+            }
+            if (close(fd) == -1) {
+            perror("close");
+            return;
+            }
+            printf("escritos %zd bytes en %s desde %p\n", bytesescritos, tr[1], addr);
+            return;
+        }
+    }
+    //si no ponen ni read ni write
+    printf("uso: i-o [read|write] ......");
+    return;
 }
 void Cmd_memory() {
 }
-void Cmd_read() {
+void Cmd_read(char *tr[]){
+    if(tr[0] == NULL || tr[1] == NULL || tr[2] == NULL){
+            printf("Parametros incorrectos");
+            return;
+    }
+    int fd = atoi(tr[0]);
+    void *addr = (void *) (uintptr_t) strtoull(tr[1], NULL, 16);
+    size_t cont = atoi(tr[2]);
+    ssize_t bytesleidos = read(fd, addr, cont);
+    if(bytesleidos == -1){
+        perror("read");
+        return;
+    }
+    printf("escritos %zd bytes del descriptor %d en la direccion %p\n", bytesleidos, fd, addr);
+    return;
 }
-void Cmd_write() {
+
+void Cmd_write(char *tr[]) {
+    if(tr[0] == NULL || tr[1] == NULL || tr[2] == NULL){
+            printf("Parametros incorrectos");
+            return;
+    }
+    int fd = atoi(tr[0]);
+    void *addr = (void *) (uintptr_t) strtoull(tr[1], NULL, 16);
+    size_t cont = atoi(tr[2]);
+    ssize_t bytesescritos = write(fd, addr, cont);
+    if(bytesescritos == -1){
+        perror("write");
+        return;
+    }
+    printf("escritos %zd bytes del descriptor %d en la direccion %p\n", bytesescritos, fd, addr);
+    return;
 }
-void Cmd_recurse() {
+void Cmd_recurse(char *tr[]) {
+    if(tr[0]== NULL){
+        return;
+    }
+    int n = atoi(tr[0]);
+    Recursiva(n);
 }
 void Cmd_memfill() {
 }

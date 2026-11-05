@@ -12,10 +12,10 @@ void VaciarMemoria(tList *MemoriaAlocada);
 
 int Cmd_allocate(char *tr[], tList *MemoriaAlocada);
 void Cmd_deallocate(char *tr[], tList *MemoriaAlocada);
-void Cmd_io();
+void Cmd_io(char *tr[]);
 void Cmd_memory();
-void Cmd_read();
-void Cmd_write();
+void Cmd_read(char *tr[]);
+void Cmd_write(char *tr[]);
 void Cmd_recurse();
 void Cmd_memfill();
 void Cmd_memdump();
