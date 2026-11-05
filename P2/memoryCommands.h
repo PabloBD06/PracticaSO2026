@@ -16,9 +16,9 @@ void Cmd_io(char *tr[]);
 void Cmd_memory();
 void Cmd_read(char *tr[]);
 void Cmd_write(char *tr[]);
-void Cmd_recurse();
-void Cmd_memfill();
-void Cmd_memdump();
+int Cmd_recurse(char *tr[]);
+int Cmd_memfill(char *tr[]);
+int Cmd_memdump(char *tr[]);
 
 #endif
 
