@@ -442,7 +442,7 @@ void doDeallocateAddress(void *addr, tList *MemoriaAlocada) {
             }
         }
     }
-    printf("No ejecutado: No such file or directory");
+    printf("No ejecutado: No such file or directory\n");
 }
 
 static void printAddress(void *addr) {
