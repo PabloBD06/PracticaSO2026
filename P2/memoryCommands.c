@@ -22,6 +22,7 @@
 
 #include "dynamicList.h"
 #include "memoryCommands.h"
+#include "shellCommands.h"
 
 #define BYTES_PER_LINE 10
 
@@ -228,19 +229,18 @@ void *sharedLocal(key_t cl, tList *list) {
     return addr;
 }
 
-void *mmapLocal(char *fil, char *perm, tList *list) {
+void *mmapLocal(char *fil, char *perm, tList *list, tList *FicherosAbiertos) {
     int prot = 0;
 
     if (strchr(perm, 'r')) prot |= PROT_READ;
     if (strchr(perm, 'w')) prot |= PROT_WRITE;
     if (strchr(perm, 'x')) prot |= PROT_EXEC;
-    int oflags = strchr(perm, 'w') ? O_RDWR : O_RDONLY;
-    // Tendremos que usar cmd open para que quede reflejado en nuestra lista
-    int fd = open(fil, oflags);
 
-    if (fd == -1) {
+    int oflags = strchr(perm, 'w') ? O_RDWR : O_RDONLY;
+
+    int fd = open(fil, oflags);
+    if (fd == -1)
         return NULL;
-    }
 
     struct stat st;
     if (fstat(fd, &st) == -1 || st.st_size <= 0) {
@@ -257,6 +257,7 @@ void *mmapLocal(char *fil, char *perm, tList *list) {
 
     memory *item = malloc(sizeof(struct memory));
     char *name = strdup(fil);
+
     if (item == NULL || name == NULL) {
         free(item);
         free(name);
@@ -271,10 +272,24 @@ void *mmapLocal(char *fil, char *perm, tList *list) {
     item->type = MAPPED;
     item->u.mapped.fd = fd;
     item->u.mapped.fileName = name;
+
     if (!insertItem(item, LNULL, list)) {
         LiberarMemoria(item);
         munmap(addr, st.st_size);
         close(fd);
+        return NULL;
+    }
+
+    // Añadimos el descriptor a la lista de ficheros abiertos
+    if (!AñadirAFicherosAbiertos(fd, oflags, fil, FicherosAbiertos, true)) {
+
+        // Eliminamos el último elemento (el que acabamos de insertar)
+        deleteAtPosition(last(*list), list);
+
+        LiberarMemoria(item);
+        munmap(addr, st.st_size);
+        close(fd);
+
         return NULL;
     }
 
@@ -476,11 +491,13 @@ static void PrintFuncs() {
 }
 
 static void PrintPmap() {
+    pid_t pid = getpid();
+    pmap(pid);
 }
 
 /* ───────────────────── COMANDOS DE MEMORIA ───────────────────── */
 
-int Cmd_allocate(char *tr[], tList *list) {
+int Cmd_allocate(char *tr[], tList *list, tList *FicherosAbiertos) {
     if (tr[0] == NULL) {
         ListarMemoria(list);
         return 0;
@@ -569,7 +586,7 @@ int Cmd_allocate(char *tr[], tList *list) {
             return -1;
         }
 
-        pointer = mmapLocal(tr[1], tr[2], list);
+        pointer = mmapLocal(tr[1], tr[2], list, FicherosAbiertos);
 
         if (pointer == NULL) {
             fprintf(stderr, "allocate: \n");

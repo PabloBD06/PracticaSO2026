@@ -10,7 +10,8 @@
 typedef struct OpenFile {
     int fd;         // file descriptor
     char *filename; // file name
-    int flags;    // flags the file was opened with  // Marks if a file is maped by the mmmap comand
+    int flags;      // flags the file was opened with
+    bool IsMapped;   // Marks if a file is maped by the mmmap comand
 } *OpenFile;        // note: now a struct type, not a pointer typedef
 
 void InicializarFicherosAbiertos(tList *FicherosAbiertos);
@@ -18,7 +19,7 @@ void VaciarFicherosAbiertos(tList *FicherosAbiertos);
 void VaciarMemoria(tList *MemoriaAlocada);
 int matchByFd(const void *item, const void *key);
 void LiberaOpenFile(void *ptr);
-bool AñadirAFicherosAbiertos(int fd, int mode, const char *name, tList *FicherosAbiertos);
+bool AñadirAFicherosAbiertos(int fd, int mode, const char *name, tList *FicherosAbiertos, bool IsMapped);
 
 
 void Cmd_date(char *tr);
