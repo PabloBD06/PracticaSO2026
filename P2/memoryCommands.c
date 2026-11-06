@@ -465,21 +465,26 @@ void dumpMemory(void *addr, int siz) {
     for (int offset = 0; offset < siz; offset += BYTES_PER_LINE) {
 
         int n = siz - offset;
+
         if (n > BYTES_PER_LINE) n = BYTES_PER_LINE;
 
         printAddress(p + offset);
+
         for (int i = 0; i < n; i++) {
             if (isprint(p[offset + i]))
                 printf(" %c ", p[offset + i]);
             else
                 printf("  ");
         }
+
         printf("\n");
 
         printAddress(p + offset);
+
         for (int i = 0; i < n; i++) {
             printf("%02x ", p[offset + i]);
         }
+
         printf("\n");
     }
 }
