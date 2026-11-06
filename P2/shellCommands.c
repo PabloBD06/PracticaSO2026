@@ -23,21 +23,14 @@
 #include "dynamicList.h"
 #include "shellCommands.h"
 
-/* The specific payload is now defined separately, no longer tied to the list */
-typedef struct OpenFile {
-    int fd;         // file descriptor
-    char *filename; // file name
-    int flags;      // flags the file was opened with
-} *OpenFile;        // note: now a struct type, not a pointer typedef
-
-static int matchByFd(const void *item, const void *key) {
+int matchByFd(const void *item, const void *key) {
     const struct OpenFile *f = item;
     return f->fd == *(const int *)key;
 }
 
 /* ───────────────────── GESTIÓN DE FICHEROS ABIERTOS ───────────────────── */
 
-static void LiberaOpenFile(void *ptr) {
+void LiberaOpenFile(void *ptr) {
     OpenFile of = (OpenFile)ptr;
 
     if (of != NULL) {
@@ -48,13 +41,23 @@ static void LiberaOpenFile(void *ptr) {
     }
 }
 
-static bool AñadirAFicherosAbiertos(int fd, int mode, const char *name, tList *FicherosAbiertos) {
+bool AñadirAFicherosAbiertos(int fd, int mode, const char *name,tList *FicherosAbiertos, bool IsMapped) {
     OpenFile NewFile = (OpenFile)malloc(sizeof(struct OpenFile));
     if (NewFile == NULL)
         return false;
 
     NewFile->fd = fd;
-    NewFile->filename = strdup(name);
+    NewFile->IsMapped = IsMapped;
+
+    if (IsMapped) {
+        size_t len = strlen(name) + strlen("Mapeo de ") + 1;
+        NewFile->filename = malloc(len);
+
+        if (NewFile->filename != NULL)
+            snprintf(NewFile->filename, len, "Mapeo de %s", name);
+    } else {
+        NewFile->filename = strdup(name);
+    }
 
     if (NewFile->filename == NULL) {
         free(NewFile);
@@ -123,7 +126,7 @@ void InicializarFicherosAbiertos(tList *FicherosAbiertos) {
     for (int i = 0; i < 3; i++) {
         int flags = fcntl(fds[i], F_GETFL);
         if (flags != -1) {
-            AñadirAFicherosAbiertos(fds[i], flags, names[i], FicherosAbiertos);
+            AñadirAFicherosAbiertos(fds[i], flags, names[i], FicherosAbiertos, false);
         }
     }
 }
@@ -579,7 +582,7 @@ void Cmd_open(char *tr[], tList *FicherosAbiertos) {
     if (df == -1) {
         perror("Imposible abrir fichero");
     } else {
-        if (AñadirAFicherosAbiertos(df, mode, tr[0], FicherosAbiertos)) {
+        if (AñadirAFicherosAbiertos(df, mode, tr[0], FicherosAbiertos, false)) {
             char modostr[128];
             FormatoModo(mode, modostr, sizeof(modostr));
             printf("Anadida entrada a la tabla ficheros abiertos: descriptor-> %d, modo-> %s, nombre-> %s\n", df, modostr, tr[0]);
@@ -591,48 +594,51 @@ void Cmd_open(char *tr[], tList *FicherosAbiertos) {
 }
 
 void Cmd_close(char *tr[], tList *FicherosAbiertos) {
-    if (tr[0] == NULL || tr[2] != NULL) {
+    if (tr[0] == NULL) {
         printf("Uso: close df [-f]\n");
         return;
     }
 
-    int df = -1;
+    int df;
     bool force = false;
-
-    if (tr[1] == NULL) {
-        if (!strcmp(tr[0], "-f")) {
+    char *end;
+    long value;
+    // Procesar argumentos
+    if (tr[1] != NULL) {
+        if (strcmp(tr[1], "-f")) {
             printf("Uso: close df [-f]\n");
             return;
         }
-        df = atoi(tr[0]);
-    } else {
-        if (!strcmp(tr[1], "-f") && strcmp(tr[0], "-f") != 0) {
-            df = atoi(tr[0]);
-            force = true;
-        } else if (!strcmp(tr[0], "-f") && strcmp(tr[1], "-f") != 0) {
-            df = atoi(tr[1]);
-            force = true;
-        } else {
-            printf("Uso: close df [-f]\n");
-            return;
-        }
+        force = true;
     }
-
-    (void)force; // El force es para la practica 2
-
-    if (close(df) == -1) {
-        perror("Imposible cerrar descriptor");
+    // Validar descriptor
+    value = strtol(tr[0], &end, 10);
+    df = (int)value;
+    if (end == tr[0] || *end != '\0' || value < 0 || value > INT_MAX) {
         return;
     }
-
+    // Buscar el descriptor en la lista
     tPosL pos = findItemFunc(&df, *FicherosAbiertos, matchByFd);
 
-    if (pos != LNULL) {
-        OpenFile of = getItem(pos, *FicherosAbiertos);
+    if(pos == LNULL) {
+        printf("Descriptor %d no encontrado en la lista de ficheros abiertos\n", df);
+        return;
+    }
+    OpenFile of = getItem(pos, *FicherosAbiertos);
+    if(of != NULL) {
+        // Comprobar si está asociado a un mapeo activo
+        if (of->IsMapped && !force) {
+            printf("Descriptor %d corresponde a un mapeo activo. Use -f para cerrarlo\n", df);
+            return;
+        }
+        // Cerrar descriptor
+        if (close(df) == -1) {
+            perror("Imposible cerrar descriptor");
+            return;
+        }
         LiberaOpenFile(of);
         deleteAtPosition(pos, FicherosAbiertos);
-    } else {
-        printf("Descriptor %d cerrado (no estaba en la lista de ficheros abiertos)\n", df);
+        printf("Descriptor %d cerrado\n", df);
     }
 }
 
@@ -659,17 +665,30 @@ void Cmd_dup(char *tr[], tList *FicherosAbiertos) {
     char dup_name[512];
     int mode = fcntl(newfd, F_GETFL);
 
-    if (mode == -1) mode = 0;
+    if (mode == -1)
+        mode = 0;
+
+    bool IsMapped = false;
 
     tPosL pos = findItemFunc(&oldfd, *FicherosAbiertos, matchByFd);
+
     if (pos != LNULL) {
         OpenFile oldFile = getItem(pos, *FicherosAbiertos);
-        snprintf(dup_name, sizeof(dup_name), "dup %d (%s)", oldfd, oldFile->filename);
+
+        snprintf(dup_name, sizeof(dup_name), "dup %d (%s)",
+                 oldfd, oldFile->filename);
+
+        IsMapped = oldFile->IsMapped;
     } else {
         snprintf(dup_name, sizeof(dup_name), "dup %d", oldfd);
     }
 
-    AñadirAFicherosAbiertos(newfd, mode, dup_name, FicherosAbiertos);
+    if (!AñadirAFicherosAbiertos(newfd, mode, dup_name, FicherosAbiertos, IsMapped)) {
+        close(newfd);
+        perror("Error al añadir el descriptor duplicado");
+        return;
+    }
+
     printf("Descriptor %d duplicado en %d\n", oldfd, newfd);
 }
 
