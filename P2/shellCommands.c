@@ -491,7 +491,16 @@ void Cmd_help(char *tr) {
                "  open [file m1 m2...]  close [df|-f]         listopen              dup df\n"
                "  lseek df pos ref      readstr df cont       writestr df str\n"
                "  makefile name         makedir nam           delete name1...       deltree name1...\n"
-               "  listfile [-long][-link][-acc] nam1...       list [-reca][-recb][-hid][-long][-link][-acc] nam1...\n");
+               "  listfile [-long][-link][-acc] nam1...       list [-reca][-recb][-hid][-long][-link][-acc] nam1...\n"
+               "\n"
+               "Memory management:\n"
+               "  allocate [-malloc|-shared|-createshared|-mmap] ...\n"
+               "  deallocate [-malloc|-shared|-delkey|-mmap|addr] ...\n"
+               "  memory [-blocks|-funcs|-vars|-all|-pmap]\n"
+               "  i-o [read|write] [-o] f addr cnt\n"
+               "  read df addr cont     write df addr cont\n"
+               "  recurse n             memfill addr cont hcode\n"
+               "  memdump addr cont\n");
     } else if (!strcmp(tr, "exit") || !strcmp(tr, "bye") || !strcmp(tr, "quit")) {
         printf("%s: exits the shell\n", tr);
     } else if (!strcmp(tr, "date")) {
@@ -533,6 +542,57 @@ void Cmd_help(char *tr) {
         printf("listfile [-long][-link][-acc] nam1 nam2...: gives info on items (does not list dir contents)\n");
     } else if (!strcmp(tr, "list")) {
         printf("list [-reca][-recb][-hid][-long][-link][-acc] nam1 nam2...: lists directory contents\n");
+
+    // MEMORY MANAGEMENT COMMANDS
+
+    } else if (!strcmp(tr, "allocate")) {
+        printf("allocate [-malloc|-shared|-createshared|-mmap] ...: allocates a memory block\n"
+               "  Without arguments: lists allocated memory blocks\n"
+               "  -malloc siz: allocates siz bytes using malloc\n"
+               "  -createshared cl siz: creates and attaches a shared memory block\n"
+               "  -shared cl: attaches an existing shared memory block with key cl\n"
+               "  -mmap fil perm: maps file fil into memory with permissions perm\n");
+
+    } else if (!strcmp(tr, "deallocate")) {
+        printf("deallocate [-malloc|-shared|-delkey|-mmap|addr] ...: deallocates memory blocks\n"
+               "  Without arguments: lists allocated memory blocks\n"
+               "  -malloc siz: frees a malloc block of the specified size\n"
+               "  -shared cl: detaches a shared memory block with key cl\n"
+               "  -delkey cl: deletes a shared memory key without detaching it\n"
+               "  -mmap fil: unmaps a previously mapped file\n"
+               "  addr: deallocates the block located at the specified address\n");
+
+    } else if (!strcmp(tr, "memory")) {
+        printf("memory [-blocks|-funcs|-vars|-all|-pmap]: shows information about shell memory\n"
+               "  -blocks: lists allocated memory blocks (malloc, shared and mmap)\n"
+               "  -funcs: shows addresses of shell and library functions\n"
+               "  -vars: shows addresses of automatic, static and external variables\n"
+               "  -all: equivalent to -blocks -funcs -vars\n"
+               "  -pmap: shows the shell's address space using pmap\n");
+
+    } else if (!strcmp(tr, "i-o")) {
+        printf("i-o [read|write] [-o] f addr cnt: transfers data between files and memory\n"
+               "  read f addr cnt: reads cnt bytes from file f into memory at addr\n"
+               "  write [-o] f addr cnt: writes cnt bytes from memory at addr into file f\n"
+               "  -o: allows overwriting the destination file\n");
+
+    } else if (!strcmp(tr, "read")) {
+        printf("read df addr cont: reads cont bytes from open file descriptor df into memory at addr\n");
+
+    } else if (!strcmp(tr, "write")) {
+        printf("write df addr cont: writes cont bytes from memory address addr to open file descriptor df\n");
+
+    } else if (!strcmp(tr, "recurse")) {
+        printf("recurse n: calls a recursive function n times\n"
+               "  Each call has an automatic array and a static array of 2048 bytes\n"
+               "  Prints their addresses and the parameter before recursing\n");
+
+    } else if (!strcmp(tr, "memfill")) {
+        printf("memfill addr cont hcode: fills cont bytes starting at addr with hexadecimal value hcode\n");
+
+    } else if (!strcmp(tr, "memdump")) {
+        printf("memdump addr cont: displays cont bytes from memory address addr in hexadecimal and character format\n");
+
     } else {
         printf("help: comando '%s' no encontrado\n", tr);
     }

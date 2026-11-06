@@ -342,23 +342,55 @@ void doDeallocateDelkey(key_t key) {
     }
 }
 
-void doDeallocateMmap(char *filename, tList *MemoriaAlocada) {
-    for (tPosL pos = first(*MemoriaAlocada); pos != LNULL; pos = next(pos, *MemoriaAlocada)) {
+void doDeallocateMmap(char *filename, tList *MemoriaAlocada, tList *FicherosAbiertos) {
+    for (tPosL pos = first(*MemoriaAlocada);
+         pos != LNULL;
+         pos = next(pos, *MemoriaAlocada)) {
+
         tItemL item = getItem(pos, *MemoriaAlocada);
         memory *m = (memory *)item;
-        if (m->type == MAPPED && strcmp(m->u.mapped.fileName, filename) == 0) {
+
+        if (m->type == MAPPED &&
+            strcmp(m->u.mapped.fileName, filename) == 0) {
+
+            // 1. Desmapear la región de memoria
             if (munmap(m->memoryAddress, m->size) == -1) {
                 perror("munmap");
                 return;
             }
-            // tengo que buscar una forma de llamar a cmd close porque si no no usa nuestra lista de ficheros
-            close(m->u.mapped.fd);
+
+            // 2. Buscar el descriptor en la lista de ficheros abiertos
+            int fd = m->u.mapped.fd;
+            tPosL posFile = findItemFunc(&fd, *FicherosAbiertos, matchByFd);
+
+            if (posFile != LNULL) {
+                OpenFile of = getItem(posFile, *FicherosAbiertos);
+
+                // 3. Cerrar el descriptor
+                if (close(fd) == -1) {
+                    perror("close");
+                    // El mapeo ya no existe, pero conservamos la entrada
+                    // del descriptor porque no hemos confirmado su cierre.
+                    of->IsMapped = false;
+                } else {
+                    // 4. Eliminar la entrada de la lista de ficheros
+                    LiberaOpenFile(of);
+                    deleteAtPosition(posFile, FicherosAbiertos);
+                }
+            } else {
+                // El descriptor no estaba registrado en nuestra lista
+                close(fd);
+            }
+
+            // 5. Eliminar el bloque de la lista de memoria
             LiberarMemoria(m);
             deleteAtPosition(pos, MemoriaAlocada);
+
             return;
         }
     }
-    printf("No hay bloque de esa clave mapeado para el proceso");
+
+    printf("No hay bloque de esa clave mapeado para el proceso\n");
 }
 
 void doDeallocateAddress(void *addr, tList *MemoriaAlocada) {
@@ -491,8 +523,9 @@ static void PrintFuncs() {
 }
 
 static void PrintPmap() {
-    pid_t pid = getpid();
-    pmap(pid);
+    char command[50];
+    sprintf(command, "pmap %d", getpid());
+    system(command);
 }
 
 /* ───────────────────── COMANDOS DE MEMORIA ───────────────────── */
@@ -603,7 +636,7 @@ int Cmd_allocate(char *tr[], tList *list, tList *FicherosAbiertos) {
     }
 }
 
-void Cmd_deallocate(char *tr[], tList *MemoriaAlocada) {
+void Cmd_deallocate(char *tr[], tList *MemoriaAlocada, tList *FicherosAbiertos) {
     // Sin argumentos-> Listar memoria
     if (tr[0] == NULL) {
         ListarMemoria(MemoriaAlocada);
@@ -655,7 +688,7 @@ void Cmd_deallocate(char *tr[], tList *MemoriaAlocada) {
             printf("Faltan argumentos\n");
             return;
         }
-        doDeallocateMmap(tr[1], MemoriaAlocada);
+        doDeallocateMmap(tr[1], MemoriaAlocada, FicherosAbiertos);
     }
     // Caso Addr
     else {
