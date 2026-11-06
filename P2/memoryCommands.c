@@ -469,7 +469,10 @@ void dumpMemory(void *addr, int siz) {
 
         printAddress(p + offset);
         for (int i = 0; i < n; i++) {
-            printf(" %c ", p[offset + i]);
+            if (isprint(p[offset + i]))
+                printf("%c ", p[offset + i]);
+            else
+                printf("  ");
         }
         printf("\n");
 
