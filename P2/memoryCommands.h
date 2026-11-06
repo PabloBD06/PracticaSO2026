@@ -13,7 +13,7 @@ void VaciarMemoria(tList *MemoriaAlocada);
 int Cmd_allocate(char *tr[], tList *MemoriaAlocada);
 void Cmd_deallocate(char *tr[], tList *MemoriaAlocada);
 void Cmd_io(char *tr[]);
-void Cmd_memory();
+int Cmd_memory(char *tr[], tList *list);
 void Cmd_read(char *tr[]);
 void Cmd_write(char *tr[]);
 int Cmd_recurse(char *tr[]);
@@ -21,4 +21,3 @@ int Cmd_memfill(char *tr[]);
 int Cmd_memdump(char *tr[]);
 
 #endif
-
