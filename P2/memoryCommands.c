@@ -69,12 +69,29 @@ void VaciarMemoria(tList *MemoriaAlocada) {
     deleteListWithData(MemoriaAlocada, LiberarMemoria);
 }
 
-void ListarMemoria(tList *MemoriaAlocada) {
-    printf("******Lista de bloques asignados\n");
+void ListarMemoria(tList *MemoriaAlocada, int tipo) {
+
+    if (tipo == -1) {
+        printf("******Lista de bloques asignados para el proceso %d\n", getpid());
+    }
+    else if (tipo == MALLOC) {
+        printf("******Lista de bloques asignados malloc para el proceso %d\n", getpid());
+    }
+    else if (tipo == SHARED) {
+        printf("******Lista de bloques asignados shared para el proceso %d\n", getpid());
+    }
+    else if (tipo == MAPPED) {
+        printf("******Lista de bloques asignados mmap para el proceso %d\n", getpid());
+    }
 
     for (tPosL pos = first(*MemoriaAlocada); pos != LNULL; pos = next(pos, *MemoriaAlocada)) {
 
-        memory *m = (memory *)getItem(pos, *MemoriaAlocada);
+        memory *m = (memory *) getItem(pos, *MemoriaAlocada);
+
+        // Si se ha solicitado un tipo concreto, ignorar los demás.
+        if (tipo != -1 && (int)m->type != tipo) {
+            continue;
+        }
 
         char date[7];
         char hour[6];
@@ -88,15 +105,17 @@ void ListarMemoria(tList *MemoriaAlocada) {
         strftime(date, sizeof(date), "%b %d", tm_info);
         strftime(hour, sizeof(hour), "%H:%M", tm_info);
 
-        printf("    %p %15zu %s %s ",
+        printf("     %p %15zu %s %s ",
                m->memoryAddress, m->size, date, hour);
 
         if (m->type == MALLOC) {
             printf("malloc\n");
-        } else if (m->type == SHARED) {
+        }
+        else if (m->type == SHARED) {
             printf("shared (key %d)\n",
-                   (int)m->u.shared.key);
-        } else if (m->type == MAPPED) {
+                   (int) m->u.shared.key);
+        }
+        else if (m->type == MAPPED) {
             printf("%s (descriptor %d)\n",
                    m->u.mapped.fileName,
                    m->u.mapped.fd);
@@ -532,7 +551,7 @@ static void PrintPmap() {
 
 int Cmd_allocate(char *tr[], tList *list, tList *FicherosAbiertos) {
     if (tr[0] == NULL) {
-        ListarMemoria(list);
+        ListarMemoria(list, -1);
         return 0;
     }
 
@@ -542,8 +561,8 @@ int Cmd_allocate(char *tr[], tList *list, tList *FicherosAbiertos) {
         size_t siz;
 
         if (tr[1] == NULL) {
-            fprintf(stderr, "allocate: -malloc needs <siz>\n");
-            return -1;
+            ListarMemoria(list, MALLOC);
+            return 0;
         }
 
         siz = strtoull(tr[1], NULL, 10);
@@ -567,8 +586,11 @@ int Cmd_allocate(char *tr[], tList *list, tList *FicherosAbiertos) {
     } else if (!strcmp(tr[0], "-createshared")) {
         key_t cl;
         size_t siz;
-
-        if (tr[1] == NULL || tr[2] == NULL) {
+        if(tr[1] == NULL){
+            ListarMemoria(list, SHARED);
+            return 0;
+        }
+        if (tr[2] == NULL) {
             fprintf(stderr, "allocate: -createshared needs <key> <size>\n");
             return -1;
         }
@@ -596,8 +618,8 @@ int Cmd_allocate(char *tr[], tList *list, tList *FicherosAbiertos) {
         key_t cl;
 
         if (tr[1] == NULL) {
-            fprintf(stderr, "allocate: -shared needs a valid key\n");
-            return -1;
+            ListarMemoria(list, SHARED);
+            return 0;
         }
 
         cl = strtol(tr[1], NULL, 10);
@@ -614,7 +636,11 @@ int Cmd_allocate(char *tr[], tList *list, tList *FicherosAbiertos) {
         return 0;
 
     } else if (!strcmp(tr[0], "-mmap")) {
-        if (tr[1] == NULL || tr[2] == NULL) {
+        if (tr[1] == NULL) {
+            ListarMemoria(list, MAPPED);
+            return 0;
+        }
+        if (tr[2] == NULL) {
             fprintf(stderr, "allocate: -mmap needs <file> <perm>\n");
             return -1;
         }
@@ -639,13 +665,13 @@ int Cmd_allocate(char *tr[], tList *list, tList *FicherosAbiertos) {
 void Cmd_deallocate(char *tr[], tList *MemoriaAlocada, tList *FicherosAbiertos) {
     // Sin argumentos-> Listar memoria
     if (tr[0] == NULL) {
-        ListarMemoria(MemoriaAlocada);
+        ListarMemoria(MemoriaAlocada, -1);
         return;
     }
     // Caso malloc
     if (strcmp(tr[0], "-malloc") == 0) {
         if (tr[1] == NULL) {
-            printf("Faltan argumentos\n");
+            ListarMemoria(MemoriaAlocada, MALLOC);
             return;
         }
 
@@ -661,7 +687,7 @@ void Cmd_deallocate(char *tr[], tList *MemoriaAlocada, tList *FicherosAbiertos) 
     // Caso shared
     else if (strcmp(tr[0], "-shared") == 0) {
         if (tr[1] == NULL) {
-            printf("Faltan argumentos\n");
+            ListarMemoria(MemoriaAlocada, SHARED);
             return;
         }
         int key = atoi(tr[1]);
@@ -670,7 +696,7 @@ void Cmd_deallocate(char *tr[], tList *MemoriaAlocada, tList *FicherosAbiertos) 
     // Caso delkey
     else if (strcmp(tr[0], "-delkey") == 0) {
         if (tr[1] == NULL) {
-            printf("Faltan argumentos\n");
+            printf("delkey necesita clave_valida\n");
             return;
         }
         char *fin;
@@ -685,7 +711,7 @@ void Cmd_deallocate(char *tr[], tList *MemoriaAlocada, tList *FicherosAbiertos) 
     // Caso mmap
     else if (strcmp(tr[0], "-mmap") == 0) {
         if (tr[1] == NULL) {
-            printf("Faltan argumentos\n");
+            ListarMemoria(MemoriaAlocada, MAPPED);
             return;
         }
         doDeallocateMmap(tr[1], MemoriaAlocada, FicherosAbiertos);
