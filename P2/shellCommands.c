@@ -24,7 +24,7 @@
 #include "shellCommands.h"
 
 /* The specific payload is now defined separately, no longer tied to the list */
-typedef struct OpenFile {
+typedef struct OpenFile{
     int fd;         // file descriptor
     char *filename; // file name
     int flags;      // flags the file was opened with
@@ -96,10 +96,20 @@ static void FormatoModo(int flags, char *buf, size_t size) {
 void ListarFicherosAbiertos(tList list) {
     for (tPosL p = first(list); p != LNULL; p = next(p, list)) {
         OpenFile file = getItem(p, list);
+
         if (file != NULL) {
             char modostr[128];
             FormatoModo(file->flags, modostr, sizeof(modostr));
-            printf("descriptor: %d -> %s %s\n", file->fd, file->filename, modostr);
+
+            off_t offset = lseek(file->fd, 0, SEEK_CUR);
+
+            if (offset == -1) {
+                printf("descriptor: %d, offset: ( ) -> %s %s\n",
+                       file->fd, file->filename, modostr);
+            } else {
+                printf("descriptor: %d, offset: (%lld) -> %s %s\n",
+                       file->fd, (long long) offset, file->filename, modostr);
+            }
         }
     }
 }
@@ -252,65 +262,80 @@ static char *ConvierteModo(mode_t m, char *permisos) {
     return permisos;
 }
 
-static void PrintFileItem(const char *path, const char *name, bool long_listing, bool show_link, bool use_acc_time) {
+static void PrintFileItem(const char *path, const char *name,
+                          bool long_listing, bool show_link,
+                          bool use_acc_time) {
+
     struct stat st;
 
     if (lstat(path, &st) == -1) {
-        fprintf(stderr, "Error al acceder a %s: %s\n", path, strerror(errno));
+        fprintf(stderr, "Error al acceder a %s: %s\n",
+                path, strerror(errno));
         return;
     }
 
+    // Listado corto
     if (!long_listing) {
+
         printf("%9ld %s", (long)st.st_size, name);
-        if (show_link && S_ISLNK(st.st_mode)) {
-            char link_target[PATH_MAX];
-            ssize_t len = readlink(path, link_target, sizeof(link_target) - 1);
-            if (len != -1) {
-                link_target[len] = '\0';
-                printf(" -> %s", link_target);
-            }
-        }
-        printf("\n");
+
     } else {
+
         char permisos[16];
         ConvierteModo(st.st_mode, permisos);
 
         char user_str[32], group_str[32];
+
         struct passwd *pw = getpwuid(st.st_uid);
         if (pw != NULL) {
             snprintf(user_str, sizeof(user_str), "%s", pw->pw_name);
         } else {
-            snprintf(user_str, sizeof(user_str), "%u", (unsigned int)st.st_uid);
+            snprintf(user_str, sizeof(user_str), "%u",
+                     (unsigned int)st.st_uid);
         }
 
         struct group *gr = getgrgid(st.st_gid);
         if (gr != NULL) {
             snprintf(group_str, sizeof(group_str), "%s", gr->gr_name);
         } else {
-            snprintf(group_str, sizeof(group_str), "%u", (unsigned int)st.st_gid);
+            snprintf(group_str, sizeof(group_str), "%u",
+                     (unsigned int)st.st_gid);
         }
 
         time_t t_file = use_acc_time ? st.st_atime : st.st_mtime;
+
         struct tm *tm_info = localtime(&t_file);
         char timebuf[32];
-        strftime(timebuf, sizeof(timebuf), "%Y/%m/%d-%H:%M", tm_info);
 
-        printf("%s %3ld %-8s %-8s %8ld %s %s",
-               permisos, (long)st.st_nlink,
-               user_str, group_str,
-               (long)st.st_size, timebuf, name);
+        strftime(timebuf, sizeof(timebuf),
+                 "%Y/%m/%d-%H:%M", tm_info);
 
-        if (show_link && S_ISLNK(st.st_mode)) {
-            char link_target[PATH_MAX];
-            ssize_t len = readlink(path, link_target, sizeof(link_target) - 1);
-            if (len != -1) {
-                link_target[len] = '\0';
-                printf(" -> %s", link_target);
-            }
-        }
-
-        printf("\n");
+        printf("%s %3ld (%ld) %-8s %-8s %s %8ld %s",
+               timebuf,
+               (long)st.st_nlink,
+               (long)st.st_ino,
+               user_str,
+               group_str,
+               permisos,
+               (long)st.st_size,
+               name);
     }
+
+    // Mostrar destino de enlaces simbólicos si se solicita -link
+    if (show_link && S_ISLNK(st.st_mode)) {
+
+        char link_target[PATH_MAX];
+
+        ssize_t len = readlink(path, link_target,
+                               sizeof(link_target) - 1);
+
+        if (len != -1) {
+            link_target[len] = '\0';
+            printf(" -> %s", link_target);
+        }
+    }
+
+    printf("\n");
 }
 
 static void ListDirectoryRecursive(const char *dir_path, bool long_listing, bool show_link, bool use_acc_time, bool show_hidden, int recurse_mode) {
