@@ -420,7 +420,7 @@ void recurse(int n) {
     static int staticArray[2048];
 
     printf("parametro: %i (%p) array %p, array estatico %p\n", n, &n, array, staticArray);
-    if (n > 0) 
+    if (n > 0)
         recurse(n - 1);
 }
 
@@ -703,13 +703,13 @@ void Cmd_io(char *tr[]) {
                 return;
             }
             if (close(fd) == -1) {
-            perror("close");
-            return;
+                perror("close");
+                return;
             }
             printf("escritos %zd bytes en %s desde %p\n", bytesescritos, tr[2], addr);
             return;
         } else {
-           int fd = open(tr[1], O_WRONLY | O_CREAT | O_EXCL, 0666);
+            int fd = open(tr[1], O_WRONLY | O_CREAT | O_EXCL, 0666);
             if (fd == -1) {
                 perror("open");
                 return;
@@ -723,8 +723,8 @@ void Cmd_io(char *tr[]) {
                 return;
             }
             if (close(fd) == -1) {
-            perror("close");
-            return;
+                perror("close");
+                return;
             }
             printf("escritos %zd bytes en %s desde %p\n", bytesescritos, tr[1], addr);
             return;
@@ -764,8 +764,8 @@ int Cmd_memory(char *tr[], tList *list) {
 
 void Cmd_read(char *tr[]) {
     if (tr[0] == NULL || tr[1] == NULL || tr[2] == NULL) {
-            printf("Parametros incorrectos");
-            return;
+        printf("Parametros incorrectos");
+        return;
     }
     int fd = atoi(tr[0]);
     void *addr = (void *)(uintptr_t)strtoull(tr[1], NULL, 16);
@@ -781,8 +781,8 @@ void Cmd_read(char *tr[]) {
 
 void Cmd_write(char *tr[]) {
     if (tr[0] == NULL || tr[1] == NULL || tr[2] == NULL) {
-            printf("Parametros incorrectos");
-            return;
+        printf("Parametros incorrectos");
+        return;
     }
     int fd = atoi(tr[0]);
     void *addr = (void *)(uintptr_t)strtoull(tr[1], NULL, 16);
