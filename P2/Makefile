@@ -4,11 +4,11 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -g
 
-p2: main.o shellCommands.o memoryCommands.o dynamicList.o
-	$(CC) $(CFLAGS) main.o shellCommands.o dynamicList.o memoryCommands.o -o p2
+p2: p2.o shellCommands.o memoryCommands.o dynamicList.o
+	$(CC) $(CFLAGS) p2.o shellCommands.o dynamicList.o memoryCommands.o -o p2
 
-main.o: main.c shellCommands.h memoryCommands.h dynamicList.h
-	$(CC) $(CFLAGS) -c main.c
+p2.o: p2.c shellCommands.h memoryCommands.h dynamicList.h
+	$(CC) $(CFLAGS) -c p2.c
 
 shellCommands.o: shellCommands.c shellCommands.h dynamicList.h
 	$(CC) $(CFLAGS) -c shellCommands.c

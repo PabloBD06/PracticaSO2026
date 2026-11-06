@@ -552,7 +552,8 @@ static void PrintFuncs() {
 static void PrintPmap() {
     char command[50];
     sprintf(command, "pmap %d", getpid());
-    system(command);
+    int resultado = system(command);
+    (void)resultado;
 }
 
 /* ───────────────────── COMANDOS DE MEMORIA ───────────────────── */
