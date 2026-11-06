@@ -295,8 +295,8 @@ static void PrintFileItem(const char *path, const char *name, bool long_listing,
         char timebuf[32];
         strftime(timebuf, sizeof(timebuf), "%Y/%m/%d-%H:%M", tm_info);
 
-        printf("%s %3ld %-8s %-8s %8ld %s %s",
-               permisos, (long)st.st_nlink,
+        printf("%s %3ld (%8li) %-8s %-8s %8ld %s %s",
+               permisos, (long)st.st_nlink, st.st_ino,
                user_str, group_str,
                (long)st.st_size, timebuf, name);
 
