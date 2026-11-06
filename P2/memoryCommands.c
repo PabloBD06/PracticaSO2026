@@ -24,7 +24,7 @@
 #include "memoryCommands.h"
 #include "shellCommands.h"
 
-#define BYTES_PER_LINE 10
+#define BYTES_PER_LINE 20
 
 enum allocationType {
     MALLOC,
