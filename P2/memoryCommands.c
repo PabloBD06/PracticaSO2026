@@ -50,6 +50,9 @@ typedef struct memory {
     } u;
 } memory;
 
+int g_i1 = 1, g_i2 = 2, g_i3 = 3;
+int g_n1, g_n2, g_n3;
+
 static void LiberarMemoria(void *ptr) {
     memory *of = (memory *)ptr;
 
@@ -421,6 +424,60 @@ void recurse(int n) {
         recurse(n - 1);
 }
 
+static void PrintBlocks(tList *list) {
+    char date[64];
+
+    printf("******Lista de bloques asignados para el proceso %d\n", getpid());
+    for (tPosL pos = first(*list); pos != LNULL; pos = next(pos, *list)) {
+        struct memory *item = (struct memory *)getItem(pos, *list);
+        struct tm *t = localtime(&item->allocationTime);
+        strftime(date, sizeof(date), "%b %e %H:%M", t);
+
+        printf("%20p %16zu %s ", item->memoryAddress, item->size, date);
+        switch (item->type) {
+        case 0:
+            printf("malloc\n");
+            break;
+        case 1:
+            printf("shared (key %d)\n", item->u.shared.key);
+            break;
+        case 2:
+            printf("%s  (descriptor %d)\n", item->u.mapped.fileName, item->u.mapped.fd);
+            break;
+        default:
+            printf("unknown\n");
+        }
+    }
+}
+
+static void PrintVars() {
+    int l1 = 1, l2 = 2, l3 = 3;              
+    static int s_i1 = 1, s_i2 = 2, s_i3 = 3; 
+    static int s_n1, s_n2, s_n3;             
+
+    printf("Variables locales       %p, %p, %p\n",
+           (void *)&l1, (void *)&l2, (void *)&l3);
+    printf("Variables globales      %p, %p, %p\n",
+           (void *)&g_i1, (void *)&g_i2, (void *)&g_i3);
+    printf("Var (N.I.)globales      %p, %p, %p\n",
+           (void *)&g_n1, (void *)&g_n2, (void *)&g_n3);
+    printf("Variables staticas      %p, %p, %p\n",
+           (void *)&s_i1, (void *)&s_i2, (void *)&s_i3);
+    printf("Var (N.I.)staticas      %p, %p, %p\n",
+           (void *)&s_n1, (void *)&s_n2, (void *)&s_n3);
+}
+
+static void PrintFuncs() {
+    printf("Funciones programa      %p, %16p, %16p\n",
+           (void *)mmapLocal, (void *)PrintBlocks, (void *)PrintVars);
+    
+    printf("Funciones libreria      %p, %16p, %16p\n",
+           (void *)printf, (void *)malloc, (void *)strcmp);
+}
+
+static void PrintPmap() {
+}
+
 /* ───────────────────── COMANDOS DE MEMORIA ───────────────────── */
 
 int Cmd_allocate(char *tr[], tList *list) {
@@ -678,7 +735,31 @@ void Cmd_io(char *tr[]) {
     return;
 }
 
-void Cmd_memory() {
+int Cmd_memory(char *tr[], tList *list) {
+    if (tr == NULL || tr[0] == NULL) {
+        PrintVars();
+        PrintFuncs();
+        PrintBlocks(list);
+        return 0;
+    }
+
+    if (strcmp(tr[0], "-blocks") == 0) {
+        PrintBlocks(list);
+    } else if (strcmp(tr[0], "-funcs") == 0) {
+        PrintFuncs();
+    } else if (strcmp(tr[0], "-vars") == 0) {
+        PrintVars();
+    } else if (strcmp(tr[0], "-all") == 0) {
+        PrintVars();
+        PrintFuncs();
+        PrintBlocks(list);
+    } else if (strcmp(tr[0], "-pmap") == 0) {
+        PrintPmap();
+    } else {
+        printf("Uso: memory [-blocks|-funcs|-vars|-all|-pmap]\n");
+        return -1;
+    }
+    return 0;
 }
 
 void Cmd_read(char *tr[]) {
