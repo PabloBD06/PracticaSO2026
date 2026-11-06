@@ -96,10 +96,21 @@ static void FormatoModo(int flags, char *buf, size_t size) {
 void ListarFicherosAbiertos(tList list) {
     for (tPosL p = first(list); p != LNULL; p = next(p, list)) {
         OpenFile file = getItem(p, list);
+
         if (file != NULL) {
             char modostr[128];
             FormatoModo(file->flags, modostr, sizeof(modostr));
-            printf("descriptor: %d -> %s %s\n", file->fd, file->filename, modostr);
+
+            off_t offset = lseek(file->fd, 0, SEEK_CUR);
+
+            if (offset == -1) {
+                printf("descriptor: %d, offset: ( ) -> %s %s\n",
+                       file->fd, file->filename, modostr);
+            } else {
+                printf("descriptor: %d, offset: (%lld) -> %s %s\n",
+                       file->fd, (long long) offset,
+                       file->filename, modostr);
+            }
         }
     }
 }
