@@ -575,7 +575,7 @@ int Cmd_allocate(char *tr[], tList *list, tList *FicherosAbiertos) {
         pointer = mallocLocal(siz, list);
 
         if (pointer == NULL) {
-            fprintf(stderr, "allocate: \n");
+            fprintf(stderr, "allocate: failed to reserve memory\n");
             return -1;
         }
 
@@ -627,7 +627,7 @@ int Cmd_allocate(char *tr[], tList *list, tList *FicherosAbiertos) {
         pointer = sharedLocal(cl, list);
 
         if (pointer == NULL) {
-            fprintf(stderr, "allocate: \n");
+            fprintf(stderr, "allocate: failed to reserve memory\n");
             return -1;
         }
 
@@ -648,7 +648,7 @@ int Cmd_allocate(char *tr[], tList *list, tList *FicherosAbiertos) {
         pointer = mmapLocal(tr[1], tr[2], list, FicherosAbiertos);
 
         if (pointer == NULL) {
-            fprintf(stderr, "allocate: \n");
+            fprintf(stderr, "allocate: failed to reserve memory\n");
             return -1;
         }
 
