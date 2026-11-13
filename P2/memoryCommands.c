@@ -362,6 +362,7 @@ void doDeallocateDelkey(key_t key) {
 }
 
 void doDeallocateMmap(char *filename, tList *MemoriaAlocada, tList *FicherosAbiertos) {
+
     for (tPosL pos = first(*MemoriaAlocada);
          pos != LNULL;
          pos = next(pos, *MemoriaAlocada)) {
@@ -372,36 +373,43 @@ void doDeallocateMmap(char *filename, tList *MemoriaAlocada, tList *FicherosAbie
         if (m->type == MAPPED &&
             strcmp(m->u.mapped.fileName, filename) == 0) {
 
-            // 1. Desmapear la región de memoria
+            // 1. Desmapear la region de memoria
             if (munmap(m->memoryAddress, m->size) == -1) {
                 perror("munmap");
                 return;
             }
 
-            // 2. Buscar el descriptor en la lista de ficheros abiertos
+            // 2. Buscar el descriptor en la lista de ficheros
             int fd = m->u.mapped.fd;
             tPosL posFile = findItemFunc(&fd, *FicherosAbiertos, matchByFd);
 
             if (posFile != LNULL) {
+
                 OpenFile of = getItem(posFile, *FicherosAbiertos);
 
                 // 3. Cerrar el descriptor
                 if (close(fd) == -1) {
                     perror("close");
-                    // El mapeo ya no existe, pero conservamos la entrada
-                    // del descriptor porque no hemos confirmado su cierre.
+
+                    // El descriptor permanece registrado,
+                    // pero ya no tiene ningun mapeo activo.
                     of->IsMapped = false;
+
                 } else {
-                    // 4. Eliminar la entrada de la lista de ficheros
+
+                    // 4. Eliminar el descriptor de la lista
                     LiberaOpenFile(of);
                     deleteAtPosition(posFile, FicherosAbiertos);
                 }
+
             } else {
-                // El descriptor no estaba registrado en nuestra lista
-                close(fd);
+
+                // Descriptor no registrado: intentar cerrarlo igualmente
+                if (close(fd) == -1)
+                    perror("close");
             }
 
-            // 5. Eliminar el bloque de la lista de memoria
+            // 5. Eliminar el bloque de memoria
             LiberarMemoria(m);
             deleteAtPosition(pos, MemoriaAlocada);
 
@@ -409,7 +417,7 @@ void doDeallocateMmap(char *filename, tList *MemoriaAlocada, tList *FicherosAbie
         }
     }
 
-    printf("No hay bloque de esa clave mapeado para el proceso\n");
+    printf("No hay bloque de ese fichero mapeado para el proceso\n");
 }
 
 void doDeallocateAddress(void *addr, tList *MemoriaAlocada) {
