@@ -51,6 +51,23 @@ void DecidirComando(char *tr[]) {
     else if (!strcmp(tr[0], "recurse")) Cmd_recurse(&tr[1]);
     else if (!strcmp(tr[0], "memfill")) Cmd_memfill(&tr[1]);
     else if (!strcmp(tr[0], "memdump")) Cmd_memdump(&tr[1]);
+
+    else if (!strcmp(tr[0], "getuid")) Cmd_getuid(&tr[1]);
+    else if (!strcmp(tr[0], "setuid")) Cmd_setuid(&tr[1]);
+    else if (!strcmp(tr[0], "prio")) Cmd_prio(&tr[1]);
+    else if (!strcmp(tr[0], "path")) Cmd_path(&tr[1]);
+    else if (!strcmp(tr[0], "showenv")) Cmd_showenv(&tr[1]);
+    else if (!strcmp(tr[0], "showvar")) Cmd_showvar(&tr[1]);
+    else if (!strcmp(tr[0], "changevar")) Cmd_changevar(&tr[1]);
+    else if (!strcmp(tr[0], "fork")) Cmd_fork(&tr[1]);
+    else if (!strcmp(tr[0], "eject")) Cmd_eject(&tr[1]);
+    else if (!strcmp(tr[0], "ejectpri")) Cmd_ejectpri(&tr[1]); 
+    else if (!strcmp(tr[0], "pplano")) Cmd_pplano(&tr[1]);
+    else if (!strcmp(tr[0], "pplanopri")) Cmd_pplanopri(&tr[1]);
+    else if (!strcmp(tr[0], "splano")) Cmd_splano(&tr[1]);
+    else if (!strcmp(tr[0], "splanopri")) Cmd_splanopri(&tr[1]);
+    else if (!strcmp(tr[0], "jobs")) Cmd_jobs(&tr[1]);
+    else if (!strcmp(tr[0], "deljobs")) Cmd_deljobs(&tr[1]);
     else
         printf("Comando no reconocido: %s (usa 'help' para ver la lista de comandos)\n", tr[0]);
 }
