@@ -14,12 +14,11 @@ enum processType {
     ACTIVE
 };
 
-typedef struct process {
+typedef struct {
     int pid;
     time_t date;
     enum processType status;
     char** commandLine;
-    int priority;
 } process;
 
 void Cmd_getuid(char *tr[]);
