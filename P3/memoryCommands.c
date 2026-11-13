@@ -26,31 +26,6 @@
 
 #define BYTES_PER_LINE 20
 
-enum allocationType {
-    MALLOC,
-    SHARED,
-    MAPPED
-};
-
-typedef struct memory {
-    void *memoryAddress;
-    size_t size;
-    time_t allocationTime;
-    enum allocationType type;
-
-    union {
-        struct {
-            key_t key;
-            int shmid;
-        } shared;
-
-        struct {
-            int fd;
-            char *fileName;
-        } mapped;
-    } u;
-} memory;
-
 int g_i1 = 1, g_i2 = 2, g_i3 = 3;
 int g_n1, g_n2, g_n3;
 

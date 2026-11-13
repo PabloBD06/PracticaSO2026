@@ -6,6 +6,31 @@
 
 #include "dynamicList.h"
 
+enum allocationType {
+    MALLOC,
+    SHARED,
+    MAPPED
+};
+
+typedef struct memory {
+    void *memoryAddress;
+    size_t size;
+    time_t allocationTime;
+    enum allocationType type;
+
+    union {
+        struct {
+            key_t key;
+            int shmid;
+        } shared;
+
+        struct {
+            int fd;
+            char *fileName;
+        } mapped;
+    } u;
+} memory;
+
 void InicializarFicherosAbiertos(tList *FicherosAbiertos);
 void VaciarFicherosAbiertos(tList *FicherosAbiertos);
 void VaciarMemoria(tList *MemoriaAlocada);
