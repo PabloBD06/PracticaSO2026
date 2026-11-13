@@ -1,0 +1,23 @@
+// Autor1: Pablo Bea Dopazo login: pablo.bea.dopazo
+// Autor2: Szymon Arthur Zieba Glaz login: szymon.zieba
+
+#ifndef MEMORYCOMMANDS_H
+#define MEMORYCOMMANDS_H
+
+#include "dynamicList.h"
+
+void InicializarFicherosAbiertos(tList *FicherosAbiertos);
+void VaciarFicherosAbiertos(tList *FicherosAbiertos);
+void VaciarMemoria(tList *MemoriaAlocada);
+
+int Cmd_allocate(char *tr[], tList *MemoriaAlocada, tList *FicherosAbiertos);
+void Cmd_deallocate(char *tr[], tList *MemoriaAlocada, tList *FicherosAbiertos);
+void Cmd_io(char *tr[]);
+int Cmd_memory(char *tr[], tList *list);
+void Cmd_read(char *tr[]);
+void Cmd_write(char *tr[]);
+int Cmd_recurse(char *tr[]);
+int Cmd_memfill(char *tr[]);
+int Cmd_memdump(char *tr[]);
+
+#endif
