@@ -19,5 +19,4 @@ void Cmd_write(char *tr[]);
 int Cmd_recurse(char *tr[]);
 int Cmd_memfill(char *tr[]);
 int Cmd_memdump(char *tr[]);
-
 #endif
