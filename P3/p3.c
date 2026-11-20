@@ -51,8 +51,7 @@ void DecidirComando(char *tr[]) {
     else if (!strcmp(tr[0], "recurse")) Cmd_recurse(&tr[1]);
     else if (!strcmp(tr[0], "memfill")) Cmd_memfill(&tr[1]);
     else if (!strcmp(tr[0], "memdump")) Cmd_memdump(&tr[1]);
-
-    else if (!strcmp(tr[0], "getuid")) Cmd_getuid(&tr[1]);
+    else if (!strcmp(tr[0], "getuid")) Cmd_getuid();
     else if (!strcmp(tr[0], "setuid")) Cmd_setuid(&tr[1]);
     else if (!strcmp(tr[0], "prio")) Cmd_prio(&tr[1]);
     else if (!strcmp(tr[0], "path")) Cmd_path(&tr[1]);

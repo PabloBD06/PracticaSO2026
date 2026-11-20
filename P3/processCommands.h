@@ -21,7 +21,7 @@ typedef struct {
     char** commandLine;
 } process;
 
-void Cmd_getuid(char *tr[]);
+void Cmd_getuid();
 void Cmd_setuid(char *tr[]);
 void Cmd_prio(char *tr[]);
 void Cmd_path(char *tr[]);
