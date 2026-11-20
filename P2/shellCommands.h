@@ -11,35 +11,34 @@ typedef struct OpenFile {
     int fd;         // file descriptor
     char *filename; // file name
     int flags;      // flags the file was opened with
-    bool IsMapped;   // Marks if a file is maped by the mmmap comand
+    bool IsMapped;  // Marks if a file is maped by the mmmap comand
 } *OpenFile;        // note: now a struct type, not a pointer typedef
 
-void InicializarFicherosAbiertos(tList *FicherosAbiertos);
-void VaciarFicherosAbiertos(tList *FicherosAbiertos);
-void VaciarMemoria(tList *MemoriaAlocada);
-int matchByFd(const void *item, const void *key);
-void LiberaOpenFile(void *ptr);
-bool AñadirAFicherosAbiertos(int fd, int mode, const char *name, tList *FicherosAbiertos, bool IsMapped);
+void InicializarFicherosAbiertos(tList *);
+void VaciarFicherosAbiertos(tList *);
+void VaciarMemoria(tList *);
+int matchByFd(const void *, const void *);
+void LiberaOpenFile(void *);
+bool AñadirAFicherosAbiertos(int, int, const char *, tList *, bool);
 
-
-void Cmd_date(char *tr);
-void Cmd_pid(char *arg);
-void Cmd_autores(char *tr);
+void Cmd_date(char *);
+void Cmd_pid(char *);
+void Cmd_autores(char *);
 void Cmd_sysinfo(void);
-void Cmd_help(char *tr);
-void Cmd_chdir(char *dir);
-void Cmd_open(char *tr[], tList *FicherosAbiertos);
-void Cmd_close(char *tr[], tList *FicherosAbiertos);
-void Cmd_listopen(tList *FicherosAbiertos);
-void Cmd_dup(char *tr[], tList *FicherosAbiertos);
-void Cmd_lseek(char *tr[]);
-void Cmd_readstr(char *tr[]);
-void Cmd_writestr(char *tr[]);
-int Cmd_makefile(char *tr);
-int Cmd_makedir(char *tr);
-void Cmd_delete(char *tr[]);
-void Cmd_deltree(char *tr[]);
-void Cmd_listfile(char *tr[]);
-void Cmd_list(char *tr[]);
+void Cmd_help(char *);
+void Cmd_chdir(char *);
+void Cmd_open(char *[], tList *);
+void Cmd_close(char *[], tList *);
+void Cmd_listopen(tList *);
+void Cmd_dup(char *[], tList *);
+void Cmd_lseek(char *[]);
+void Cmd_readstr(char *[]);
+void Cmd_writestr(char *[]);
+int Cmd_makefile(char *);
+int Cmd_makedir(char *);
+void Cmd_delete(char *[]);
+void Cmd_deltree(char *[]);
+void Cmd_listfile(char *[]);
+void Cmd_list(char *[]);
 
 #endif

@@ -6,17 +6,17 @@
 
 #include "dynamicList.h"
 
-void InicializarFicherosAbiertos(tList *FicherosAbiertos);
-void VaciarFicherosAbiertos(tList *FicherosAbiertos);
-void VaciarMemoria(tList *MemoriaAlocada);
+void InicializarFicherosAbiertos(tList *);
+void VaciarFicherosAbiertos(tList *);
+void VaciarMemoria(tList *);
 
-int Cmd_allocate(char *tr[], tList *MemoriaAlocada, tList *FicherosAbiertos);
-void Cmd_deallocate(char *tr[], tList *MemoriaAlocada, tList *FicherosAbiertos);
-void Cmd_io(char *tr[]);
-int Cmd_memory(char *tr[], tList *list);
-void Cmd_read(char *tr[]);
-void Cmd_write(char *tr[]);
-int Cmd_recurse(char *tr[]);
-int Cmd_memfill(char *tr[]);
-int Cmd_memdump(char *tr[]);
+int Cmd_allocate(char *[], tList *, tList *);
+void Cmd_deallocate(char *[], tList *, tList *);
+void Cmd_io(char *[]);
+int Cmd_memory(char *[], tList *);
+void Cmd_read(char *[]);
+void Cmd_write(char *[]);
+int Cmd_recurse(char *[]);
+int Cmd_memfill(char *[]);
+int Cmd_memdump(char *[]);
 #endif
