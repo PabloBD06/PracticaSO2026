@@ -26,6 +26,7 @@ void Cmd_setuid(char *tr[]);
 void Cmd_prio(char *tr[]);
 void Cmd_path(char *tr[]);
 void CleanupSearchPath(void);
+void SetMainEnvironment(char **environment, char ***environmentStorage);
 void Cmd_showenv(char *tr[]);
 void Cmd_showvar(char *tr[]);
 void Cmd_changevar(char *tr[]);

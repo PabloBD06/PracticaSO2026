@@ -97,6 +97,7 @@ int main(int argc, char *argv[], char *ent[]) {
 
     InicializarFicherosAbiertos(&FicherosAbiertos);
     createEmptyList(&MemoriaAlocada);
+    SetMainEnvironment(ent, &ent);
 
     while (1) {
         printf("-> ");

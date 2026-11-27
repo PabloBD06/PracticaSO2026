@@ -3,9 +3,43 @@
 #include <pwd.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/resource.h>
 #include <unistd.h>
+
+extern char **environ;
+
+static char **MainEnvironment;
+static char ***MainEnvironmentStorage;
+
+void SetMainEnvironment(char **environment, char ***environmentStorage) {
+    MainEnvironment = environment;
+    MainEnvironmentStorage = environmentStorage;
+}
+
+static void PrintEnvironment(char **environment) {
+    int i;
+    if (environment == NULL)
+        return;
+    for (i = 0; environment[i] != NULL; i++)
+        puts(environment[i]);
+}
+
+static void PrintEnvironmentAddresses(void) {
+    int i;
+
+    if (MainEnvironment != NULL) {
+        for (i = 0; MainEnvironment[i] != NULL; i++)
+            printf("%p->main arg3[%d]=(%p) %s\n",
+                   (void *)&MainEnvironment[i], i,
+                   (void *)MainEnvironment[i], MainEnvironment[i]);
+    }
+    printf("environ:   %p (almacenado en %p)\n",
+           (void *)environ, (void *)&environ);
+    printf("main arg3: %p (almacenado en %p)\n",
+           (void *)MainEnvironment, (void *)MainEnvironmentStorage);
+}
 
 /* Adaptado de P3/HelpCodes/Shell/Version-4/path.c: las funciones siguientes
  * conservan su lista de directorios y las operaciones usadas por Cmd_path. */
@@ -200,7 +234,17 @@ void Cmd_path(char *tr[]) {
     fprintf(stderr, "Uso: path [-add directorio|-del directorio|-clear|-path]\n");
 }
 
-void Cmd_showenv(char *tr[]) {}
+void Cmd_showenv(char *tr[]) {
+    if (tr[0] == NULL) {
+        PrintEnvironment(MainEnvironment);
+    } else if (strcmp(tr[0], "-environ") == 0 && tr[1] == NULL) {
+        PrintEnvironment(environ);
+    } else if (strcmp(tr[0], "-addr") == 0 && tr[1] == NULL) {
+        PrintEnvironmentAddresses();
+    } else {
+        fprintf(stderr, "Uso: showenv [-environ|-addr]\n");
+    }
+}
 void Cmd_showvar(char *tr[]) {}
 void Cmd_changevar(char *tr[]) {}
 void Cmd_fork(char *tr[]) {}
