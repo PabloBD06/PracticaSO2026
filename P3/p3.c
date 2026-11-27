@@ -7,6 +7,7 @@
 
 #include "shellCommands.h"
 #include "memoryCommands.h"
+#include "processCommands.h"
 #include "dynamicList.h"
 
 #define MAXENTRADA 2048
@@ -21,6 +22,7 @@ void DecidirComando(char *tr[]) {
     if (!strcmp(tr[0], "quit") || !strcmp(tr[0], "exit") || !strcmp(tr[0], "bye")) {
         VaciarFicherosAbiertos(&FicherosAbiertos);
         VaciarMemoria(&MemoriaAlocada);
+        CleanupSearchPath();
         exit(0);
     } else if (!strcmp(tr[0], "date")) Cmd_date(tr[1]);
     else if (!strcmp(tr[0], "pid")) Cmd_pid(tr[1]);
