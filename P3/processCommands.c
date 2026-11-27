@@ -84,14 +84,13 @@ static void PrintEnvironment(char **environment, const char *source) {
                (void *)environment[i], environment[i]);
 }
 
-/* Adaptado de P3/HelpCodes/Shell/Version-4/path.c: las funciones siguientes
- * conservan su lista de directorios y las operaciones usadas por Cmd_path. */
 static tList SearchPath;
 
 static int ComparePathDirectory(const void *left, const void *right) {
     return strcmp((const char *)left, (const char *)right) == 0;
 }
 
+/* Adaptada de P3/HelpCodes/Shell/Version-4/path.c. */
 static int PathAdd(char *directory) {
     char *copy;
 
@@ -107,10 +106,12 @@ static int PathAdd(char *directory) {
     return 0;
 }
 
+/* Adaptada de P3/HelpCodes/Shell/Version-4/path.c. */
 static void PathClear(void) {
     deleteListWithData(&SearchPath, free);
 }
 
+/* Adaptada de P3/HelpCodes/Shell/Version-4/path.c. */
 static int PathDel(char *directory) {
     tPosL position = findItemFunc(directory, SearchPath, ComparePathDirectory);
     if (position == LNULL) {
@@ -122,6 +123,7 @@ static int PathDel(char *directory) {
     return 0;
 }
 
+/* Adaptada de P3/HelpCodes/Shell/Version-4/path.c. */
 static void PathPrint(void) {
     tPosL position;
     for (position = first(SearchPath); position != LNULL;
@@ -129,6 +131,7 @@ static void PathPrint(void) {
         printf("%s\n", (char *)getItem(position, SearchPath));
 }
 
+/* Adaptada de P3/HelpCodes/Shell/Version-4/path.c. */
 static int PathAddPath(void) {
     char *environmentPath = getenv("PATH");
     char *directory;
@@ -222,8 +225,6 @@ void Cmd_prio(char *tr[]) {
     }
 }
 
-/* PathAdd/PathDel/PathClear/PathPrint/PathAddPath vienen de
- * P3/HelpCodes/Shell/Version-4/path.c; el despacho sigue la sintaxis de P3. */
 void Cmd_path(char *tr[]) {
     if (tr[0] == NULL) {
         PathPrint();
