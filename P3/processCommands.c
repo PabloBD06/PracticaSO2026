@@ -18,27 +18,13 @@ void SetMainEnvironment(char **environment, char ***environmentStorage) {
     MainEnvironmentStorage = environmentStorage;
 }
 
-static void PrintEnvironment(char **environment) {
+static void PrintEnvironment(char **environment, const char *source) {
     int i;
     if (environment == NULL)
         return;
     for (i = 0; environment[i] != NULL; i++)
-        puts(environment[i]);
-}
-
-static void PrintEnvironmentAddresses(void) {
-    int i;
-
-    if (MainEnvironment != NULL) {
-        for (i = 0; MainEnvironment[i] != NULL; i++)
-            printf("%p->main arg3[%d]=(%p) %s\n",
-                   (void *)&MainEnvironment[i], i,
-                   (void *)MainEnvironment[i], MainEnvironment[i]);
-    }
-    printf("environ:   %p (almacenado en %p)\n",
-           (void *)environ, (void *)&environ);
-    printf("main arg3: %p (almacenado en %p)\n",
-           (void *)MainEnvironment, (void *)MainEnvironmentStorage);
+        printf("%p->%s[%d]=(%p) %s\n", (void *)&environment[i], source, i,
+               (void *)environment[i], environment[i]);
 }
 
 /* Adaptado de P3/HelpCodes/Shell/Version-4/path.c: las funciones siguientes
@@ -236,11 +222,14 @@ void Cmd_path(char *tr[]) {
 
 void Cmd_showenv(char *tr[]) {
     if (tr[0] == NULL) {
-        PrintEnvironment(MainEnvironment);
+        PrintEnvironment(MainEnvironment, "main arg3");
     } else if (strcmp(tr[0], "-environ") == 0 && tr[1] == NULL) {
-        PrintEnvironment(environ);
+        PrintEnvironment(environ, "environ");
     } else if (strcmp(tr[0], "-addr") == 0 && tr[1] == NULL) {
-        PrintEnvironmentAddresses();
+        printf("environ:   %p (almacenado en %p)\n",
+               (void *)environ, (void *)&environ);
+        printf("main arg3: %p (almacenado en %p)\n",
+               (void *)MainEnvironment, (void *)MainEnvironmentStorage);
     } else {
         fprintf(stderr, "Uso: showenv [-environ|-addr]\n");
     }
