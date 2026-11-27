@@ -4,8 +4,12 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -g
 
-p3: p3.o shellCommands.o memoryCommands.o dynamicList.o
-	$(CC) $(CFLAGS) p3.o shellCommands.o dynamicList.o memoryCommands.o -o p3
+.PHONY: all clean
+
+all: p3
+
+p3: p3.o shellCommands.o memoryCommands.o processCommands.o dynamicList.o
+	$(CC) $(CFLAGS) $^ -o $@
 
 p3.o: p3.c shellCommands.h memoryCommands.h dynamicList.h
 	$(CC) $(CFLAGS) -c p3.c
@@ -15,6 +19,9 @@ shellCommands.o: shellCommands.c shellCommands.h dynamicList.h
 
 memoryCommands.o: memoryCommands.c memoryCommands.h dynamicList.h
 	$(CC) $(CFLAGS) -c memoryCommands.c
+
+processCommands.o: processCommands.c processCommands.h dynamicList.h
+	$(CC) $(CFLAGS) -c processCommands.c
 
 dynamicList.o: dynamicList.c dynamicList.h
 	$(CC) $(CFLAGS) -c dynamicList.c
