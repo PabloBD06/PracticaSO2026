@@ -13,6 +13,20 @@ extern char **environ;
 static char **MainEnvironment;
 static char ***MainEnvironmentStorage;
 
+static char **FindEnvironmentEntry(char **environment, const char *name) {
+    size_t nameLength = strlen(name);
+    int i;
+
+    if (environment == NULL)
+        return NULL;
+    for (i = 0; environment[i] != NULL; i++) {
+        if (strncmp(environment[i], name, nameLength) == 0 &&
+            environment[i][nameLength] == '=')
+            return &environment[i];
+    }
+    return NULL;
+}
+
 void SetMainEnvironment(char **environment, char ***environmentStorage) {
     MainEnvironment = environment;
     MainEnvironmentStorage = environmentStorage;
@@ -234,7 +248,34 @@ void Cmd_showenv(char *tr[]) {
         fprintf(stderr, "Uso: showenv [-environ|-addr]\n");
     }
 }
-void Cmd_showvar(char *tr[]) {}
+
+void Cmd_showvar(char *tr[]) {
+    char **entry;
+    char *value;
+
+    if (tr[0] == NULL) {
+        PrintEnvironment(MainEnvironment, "main arg3");
+        return;
+    }
+    if (tr[1] != NULL) {
+        fprintf(stderr, "Uso: showvar nombre\n");
+        return;
+    }
+
+    entry = FindEnvironmentEntry(MainEnvironment, tr[0]);
+    if (entry != NULL)
+        printf("Con arg3 main %s(%p) @%p\n",
+               *entry, (void *)*entry, (void *)entry);
+
+    entry = FindEnvironmentEntry(environ, tr[0]);
+    if (entry != NULL)
+        printf("  Con environ %s(%p) @%p\n",
+               *entry, (void *)*entry, (void *)entry);
+
+    value = getenv(tr[0]);
+    if (value != NULL)
+        printf("   Con getenv %s(%p)\n", value, (void *)value);
+}
 void Cmd_changevar(char *tr[]) {}
 void Cmd_fork(char *tr[]) {}
 void Cmd_ejec(char *tr[]) {}
