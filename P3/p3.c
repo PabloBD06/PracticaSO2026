@@ -61,8 +61,8 @@ void DecidirComando(char *tr[]) {
     else if (!strcmp(tr[0], "showvar")) Cmd_showvar(&tr[1]);
     else if (!strcmp(tr[0], "changevar")) Cmd_changevar(&tr[1]);
     else if (!strcmp(tr[0], "fork")) Cmd_fork(&tr[1]);
-    else if (!strcmp(tr[0], "eject")) Cmd_eject(&tr[1]);
-    else if (!strcmp(tr[0], "ejectpri")) Cmd_ejectpri(&tr[1]); 
+    else if (!strcmp(tr[0], "eject")) Cmd_ejec(&tr[1]);
+    else if (!strcmp(tr[0], "ejectpri")) Cmd_ejecpri(&tr[1]); 
     else if (!strcmp(tr[0], "pplano")) Cmd_pplano(&tr[1]);
     else if (!strcmp(tr[0], "pplanopri")) Cmd_pplanopri(&tr[1]);
     else if (!strcmp(tr[0], "splano")) Cmd_splano(&tr[1]);
