@@ -6,7 +6,7 @@
             "label": "make",
             "command": "make",
             "options": {
-                "cwd": "${workspaceFolder}/P2"
+                "cwd": "${workspaceFolder}/P3"
             },
             "problemMatcher": ["$gcc"],
             "group": {
