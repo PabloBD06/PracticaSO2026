@@ -2,6 +2,7 @@
 #include <errno.h>
 #include <pwd.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,6 +26,48 @@ static char **FindEnvironmentEntry(char **environment, const char *name) {
             return &environment[i];
     }
     return NULL;
+}
+
+static char *CreateEnvironmentEntry(const char *name, const char *value) {
+    size_t nameLength = strlen(name);
+    size_t valueLength = strlen(value);
+    size_t entrySize;
+    char *entry;
+    int written;
+
+    if (valueLength > SIZE_MAX - 2 ||
+        nameLength > SIZE_MAX - valueLength - 2) {
+        errno = ENOMEM;
+        return NULL;
+    }
+    entrySize = nameLength + valueLength + 2;
+    entry = malloc(entrySize);
+    if (entry == NULL)
+        return NULL;
+    written = snprintf(entry, entrySize, "%s=%s", name, value);
+    if (written < 0 || (size_t)written >= entrySize) {
+        free(entry);
+        errno = EINVAL;
+        return NULL;
+    }
+    return entry;
+}
+
+static int ChangeEnvironmentEntry(char **environment, const char *name,
+                                  const char *value) {
+    char **entry = FindEnvironmentEntry(environment, name);
+    char *replacement;
+
+    if (entry == NULL) {
+        errno = ENOENT;
+        return -1;
+    }
+    replacement = CreateEnvironmentEntry(name, value);
+    if (replacement == NULL)
+        return -1;
+    /* arg3 y environ pueden compartir la cadena anterior. */
+    *entry = replacement;
+    return 0;
 }
 
 void SetMainEnvironment(char **environment, char ***environmentStorage) {
@@ -276,7 +319,35 @@ void Cmd_showvar(char *tr[]) {
     if (value != NULL)
         printf("   Con getenv %s(%p)\n", value, (void *)value);
 }
-void Cmd_changevar(char *tr[]) {}
+void Cmd_changevar(char *tr[]) {
+    char *entry;
+
+    if (tr[0] == NULL || tr[1] == NULL || tr[2] == NULL || tr[3] != NULL ||
+        tr[1][0] == '\0' || strchr(tr[1], '=') != NULL) {
+        fprintf(stderr, "Uso: changevar [-a|-e|-p] var valor\n");
+        return;
+    }
+
+    if (strcmp(tr[0], "-a") == 0) {
+        if (ChangeEnvironmentEntry(MainEnvironment, tr[1], tr[2]) == -1)
+            perror("Imposible cambiar variable");
+    } else if (strcmp(tr[0], "-e") == 0) {
+        if (ChangeEnvironmentEntry(environ, tr[1], tr[2]) == -1)
+            perror("Imposible cambiar variable");
+    } else if (strcmp(tr[0], "-p") == 0) {
+        entry = CreateEnvironmentEntry(tr[1], tr[2]);
+        if (entry == NULL) {
+            perror("Imposible cambiar variable");
+            return;
+        }
+        if (putenv(entry) == -1) {
+            perror("Imposible cambiar variable");
+            free(entry);
+        }
+    } else {
+        fprintf(stderr, "Uso: changevar [-a|-e|-p] var valor\n");
+    }
+}
 void Cmd_fork(char *tr[]) {}
 void Cmd_ejec(char *tr[]) {}
 void Cmd_ejecpri(char *tr[]) {}
