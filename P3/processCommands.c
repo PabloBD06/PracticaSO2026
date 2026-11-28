@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/resource.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 extern char **environ;
@@ -349,7 +350,41 @@ void Cmd_changevar(char *tr[]) {
         fprintf(stderr, "Uso: changevar [-a|-e|-p] var valor\n");
     }
 }
-void Cmd_fork(char *tr[]) {}
+/* Adaptada de P3/HelpCodes/helpCode.c. */
+void Cmd_fork(char *tr[]) {
+    pid_t pid;
+    int status;
+
+    fflush(stdout);
+    pid = fork();
+
+    if (pid < 0) {
+        perror("fork");
+        return;
+    }
+
+    if (pid == 0) {
+        char *defaultCommand[] = {"ls", "-l", NULL};
+        char **command;
+
+        if (tr[0] != NULL) {
+            command = tr;
+        } else {
+            command = defaultCommand;
+        }
+
+        execvp(command[0], command);
+        perror("execvp");
+        _exit(1);
+    }
+
+    while (waitpid(pid, &status, 0) == -1) {
+        if (errno != EINTR) {
+            perror("waitpid");
+            break;
+        }
+    }
+}
 void Cmd_ejec(char *tr[]) {}
 void Cmd_ejecpri(char *tr[]) {}
 void Cmd_pplano(char *tr[]) {}
